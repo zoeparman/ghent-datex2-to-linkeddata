@@ -1,0 +1,21 @@
+{
+    "name": "otn/linkeddatex2ghent",
+    "description": "A Linked Data convertor for the dynamic and static feed of the Ghent parking lots, made queryable through the Linked Data Fragments’ Triple Pattern Fragments approach",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Pieter Colpaert",
+            "email": "pieter.colpaert@imec.be"
+        }
+    ],
+    "autoload": {
+        "psr-0": {
+            "otn\\linkeddatex2\\": "src/"
+        }
+    },
+    "require": {
+        "easyrdf/easyrdf": "*",
+        "guzzlehttp/guzzle": "~6.0",
+        "willdurand/negotiation": "^2.2"
+    }
+}
