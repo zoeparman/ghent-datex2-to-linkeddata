@@ -2,7 +2,7 @@
 
 This is a PHP library to convert the Datex2 Open Data feeds from the city of Ghent to Linked Data. The data can be queried using the Linked Data Fragments client.
 
-Link: TODO
+Link: http://linked.open.gent/parking
 
 ## Install
 
@@ -15,7 +15,7 @@ composer install
 
 If you have a webserver, such as apache, direct your webserver to have the `public/` directory as the web root.
 
-For development purposes, you can test your code with `curl -S localhost:1234 -t public/` and your site will be available at http://localhost:1234/
+For development purposes, you can test your code with `php -S localhost:1234 -t public/` and your site will be available at http://localhost:1234/
 
 ## Classes that can be used
 
