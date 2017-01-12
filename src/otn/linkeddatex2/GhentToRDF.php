@@ -48,7 +48,7 @@ Class GhentToRDF
             foreach ($xmldoc->payloadPublication->genericPublicationExtension->parkingTablePublication->parkingTable->parkingRecord->parkingSite as $parking) {
                 //var_dump($parking);
                 $parkingResource = $graph->resource((string)$parkingURIs[(string) $parking["id"]]);
-                $parkingResource->set('rdfs:type',$graph->resource('http://vocab.datex.org/terms#UrbanParkingSite'));
+                $parkingResource->set('rdf:type',$graph->resource('http://vocab.datex.org/terms#UrbanParkingSite'));
 
                 $parkingResource->set('rdfs:label',(string)$parking->parkingName->values[0]->value);
                 $parkingResource->set('dct:description',(string)$parking->parkingDescription->values[0]->value);
