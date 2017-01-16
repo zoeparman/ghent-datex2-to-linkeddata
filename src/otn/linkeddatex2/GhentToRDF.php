@@ -26,6 +26,24 @@ Class GhentToRDF
         if (!isset($graph)) {
             $graph = new \EasyRdf_Graph("http://linked.open.gent/parking");
         }
+
+        ## mapping to City of Ghent URIs to Linked Geo Data
+        $sameAs = [
+            "https://stad.gent/id/parking/P10" => "http://linkedgeodata.org/triplify/node204735155", #GSP
+            "https://stad.gent/id/parking/P7" => "http://linkedgeodata.org/triplify/node310469809", #SM
+            "https://stad.gent/id/parking/P1" => "http://linkedgeodata.org/triplify/node2547503851", #vrijdagmarkt
+            "https://stad.gent/id/parking/P4" =>"http://linkedgeodata.org/triplify/node346358328", #savaanstraat
+            "https://stad.gent/id/parking/P8" => "http://linkedgeodata.org/triplify/node497394185", #Ramen
+            "https://stad.gent/id/parking/P2" => "http://linkedgeodata.org/triplify/node1310104245", #Reep
+        ];
+        
+        foreach ($sameAs as $key => $val) {
+            $gentID = $graph->resource($key);
+            $gentID->add("owl:sameAs",$graph->resource($val));
+        }
+        $savaanstraat= ;
+        
+            
         $client = new \GuzzleHttp\Client();
         $res = $client->request('GET', $url);
         $xmldoc = new \SimpleXMLElement($res->getBody());
