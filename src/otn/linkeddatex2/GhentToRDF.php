@@ -41,8 +41,6 @@ Class GhentToRDF
             $gentID = $graph->resource($key);
             $gentID->add("owl:sameAs",$graph->resource($val));
         }
-        $savaanstraat= ;
-        
             
         $client = new \GuzzleHttp\Client();
         $res = $client->request('GET', $url);
