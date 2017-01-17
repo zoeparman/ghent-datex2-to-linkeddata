@@ -14,7 +14,7 @@ Class Metadata
         //This is a template for the Triple Pattern Fragments specification (https://www.hydra-cg.com/spec/latest/triple-pattern-fragments/), which will allow you to use this document as a queryable resource in the Linked Data Fragments client (http://client.linkeddatafragments.org/)
         $dataset = $graph->resource("http://linked.open.gent/parking/#dataset");
         $document = $graph->resource("http://linked.open.gent/parking/");
-        $document->set('void:count', "200");
+        $document->set('void:triples', "200");
         
         $search = $graph->resource("http://linked.open.gent/parking/#search");
         $dataset->add("hydra:search",$search);
