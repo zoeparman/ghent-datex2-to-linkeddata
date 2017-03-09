@@ -17,7 +17,6 @@ Class GhentToRDF
         \EasyRdf_Namespace::set("geo","http://www.w3.org/2003/01/geo/wgs84_pos#"); // TODO Is this not used?
 
         // Map parking ID's to their URI's
-        // TODO Why does this need to happen? Is this Ghent's fault?
         $parkingURIs = [
             "1bcd7c6f-563b-4c07-803d-a2ad05014c9f" => "https://stad.gent/id/parking/P7",
             "a13c076c-4088-4623-bfcb-41ab45cb8f9f" => "https://stad.gent/id/parking/P10",
@@ -33,7 +32,6 @@ Class GhentToRDF
         }
 
         // mapping to City of Ghent URIs to Linked Geo Data
-        // TODO this is basically manual entry of missing triples?
         $sameAs = [
             "https://stad.gent/id/parking/P10" => "http://linkedgeodata.org/triplify/node204735155", #GSP
             "https://stad.gent/id/parking/P7" => "http://linkedgeodata.org/triplify/node310469809", #SM
