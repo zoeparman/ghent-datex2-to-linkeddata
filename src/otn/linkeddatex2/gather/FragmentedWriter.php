@@ -59,6 +59,7 @@ class FragmentedWriter
         if (strlen($content) > $this->max_file_size) {
             // If the content itself is bigger than the fragment size, write it but throw a warning
             trigger_error("Content is bigger than the configured chunk size");
+            $this->current_fragment++;
         } else if (strlen($current_content) + strlen($content) > $this->max_file_size) {
             // If it's not, but it doesn't fit in the fragment, create a new file
             $this->current_fragment++;
