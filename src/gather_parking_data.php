@@ -13,8 +13,9 @@ $writer = new FragmentedWriter(date("Ymd"), __DIR__ . '/out', 1024); // 1 KiB fo
 $interval = 1;
 
 for ($i = 0; $i < $total_queries; $i++) {
-    //$arr_graph = GraphProcessor::construct_graph();
-    $arr_graph = GraphProcessor::construct_stub_graph(); // Use this for testing if site is down
+    print($i . "\n");
+    $arr_graph = GraphProcessor::construct_graph();
+    //$arr_graph = GraphProcessor::construct_stub_graph(); // Use this for testing if site is down
     $parkings = GraphProcessor::get_parkings_from_graph($arr_graph);
 
     if ($i == 0) {

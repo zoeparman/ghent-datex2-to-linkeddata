@@ -12,9 +12,9 @@ Class GhentToRDF
     public static function map($url, &$graph){
         // \EasyRdf_Namespace::set registers a new prefix
         \EasyRdf_Namespace::set("datex","http://vocab.datex.org/terms#");
-        \EasyRdf_Namespace::set("schema","http://schema.org/"); // TODO Is this not used?
-        \EasyRdf_Namespace::set("dct","http://purl.org/dc/terms/"); // TODO Why is this renamed to dc?
-        \EasyRdf_Namespace::set("geo","http://www.w3.org/2003/01/geo/wgs84_pos#"); // TODO Is this not used?
+        \EasyRdf_Namespace::set("schema","http://schema.org/");
+        \EasyRdf_Namespace::set("dct","http://purl.org/dc/terms/");
+        \EasyRdf_Namespace::set("geo","http://www.w3.org/2003/01/geo/wgs84_pos#");
 
         // Map parking ID's to their URI's
         $parkingURIs = [

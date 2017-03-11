@@ -46,22 +46,27 @@ class FragmentedWriter
 
     // TODO can flysystem append to files?
     // TODO keep buffer as property
-    // TODO the size check should happen before writing
-    // TODO error/warning if content length is bigger than chunk size
     /**
      * Appends content to the fragmented file. Creates new chunk when file size limit is reached.
      * @param $content: The content to append to the file.
      */
     public function write($content) {
+        $current_content = "";
         if ($this->filesystem->has($this->current_filename())) {
-            $content = $this->filesystem->read($this->current_filename()) . $content . "\n";
+            $current_content = $this->filesystem->read($this->current_filename());
         }
-        $this->filesystem->put($this->current_filename(), $content);
 
-        $size = strlen($content); // Flysystem filesize doesn't update accurately. Probably disk caching.
-
-        if ($size > $this->max_file_size) {
+        if (strlen($content) > $this->max_file_size) {
+            // If the content itself is bigger than the fragment size, write it but throw a warning
+            trigger_error("Content is bigger than the configured chunk size");
+        } else if (strlen($current_content) + strlen($content) > $this->max_file_size) {
+            // If it's not, but it doesn't fit in the fragment, create a new file
             $this->current_fragment++;
+        } else {
+            // If it still fits, append it
+            $content = $current_content . $content;
         }
+
+        $this->filesystem->put($this->current_filename(), $content . "\n");
     }
 }
