@@ -63,7 +63,7 @@ class GraphProcessor
     }
 
     public static function strip_static_data_from_parkings($parkings) {
-        $result = array();
+        $result = array("type" => "static");
 
         foreach($parkings as $p_num => $parking) {
             $desc = $parking[self::$urls["description"]][0]['value'];
@@ -78,7 +78,7 @@ class GraphProcessor
     }
 
     public static function strip_dynamic_data_from_parkings($parkings) {
-        $result = array("time" => date("Gis"));
+        $result = array("time" => date("Gis"), "type" => "dynamic");
 
         foreach($parkings as $p_num => $parking) {
             $vacant = $parking[self::$prefixes["datex"] . self::$prefixes["vacant_spaces"]][0]['value'];

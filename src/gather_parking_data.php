@@ -10,6 +10,7 @@ use \otn\linkeddatex2\gather\FragmentedWriter;
 $total_queries = 20;
 date_default_timezone_set("Europe/Brussels");
 $writer = new FragmentedWriter(date("Ymd"), __DIR__ . '/out', 1024); // 1 KiB for testing
+$interval = 1;
 
 for ($i = 0; $i < $total_queries; $i++) {
     //$arr_graph = GraphProcessor::construct_graph();
@@ -23,5 +24,5 @@ for ($i = 0; $i < $total_queries; $i++) {
 
     $dynamic_data = GraphProcessor::strip_dynamic_data_from_parkings($parkings);
     $writer->write(serialize($dynamic_data));
-    sleep(1);
+    sleep($interval);
 }

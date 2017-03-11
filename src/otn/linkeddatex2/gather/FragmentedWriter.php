@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: faplord
- * Date: 11/03/17
- * Time: 18:28
- */
 
 namespace otn\linkeddatex2\gather;
 
@@ -39,7 +33,7 @@ class FragmentedWriter
     // TODO keep buffer as property
     public function write($content) {
         if ($this->filesystem->has($this->current_filename())) {
-            $content = $this->filesystem->read($this->current_filename()) . "\n" . $content;
+            $content = $this->filesystem->read($this->current_filename()) . $content . "\n";
         }
         $this->filesystem->put($this->current_filename(), $content);
 
