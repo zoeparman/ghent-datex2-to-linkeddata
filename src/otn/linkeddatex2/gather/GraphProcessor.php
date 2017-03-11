@@ -1,6 +1,6 @@
 <?php
 
-namespace otn\linkeddatex2\graph;
+namespace otn\linkeddatex2\gather;
 
 use otn\linkeddatex2\GhentToRDF;
 
@@ -78,7 +78,7 @@ class GraphProcessor
     }
 
     public static function strip_dynamic_data_from_parkings($parkings) {
-        $result = array();
+        $result = array("time" => date("Gis"));
 
         foreach($parkings as $p_num => $parking) {
             $vacant = $parking[self::$prefixes["datex"] . self::$prefixes["vacant_spaces"]][0]['value'];
