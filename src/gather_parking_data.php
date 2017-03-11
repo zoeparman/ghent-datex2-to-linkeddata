@@ -3,40 +3,23 @@ require __DIR__ . '/../vendor/autoload.php';
 
 // TODO add command line arguments (amount of queries, location to save file)
 
+use \otn\linkeddatex2\graph\GraphProcessor;
+
 $total_queries = 10;
+
 for ($i = 0; $i < $total_queries; $i++) {
-    $graph = new \EasyRdf_Graph(); // Initializing here allows PHPStorm to infer methods and properties
+    //$arr_graph = GraphProcessor::construct_graph();
+    $arr_graph = GraphProcessor::construct_stub_graph(); // Use this for testing if site is down
 
-    // Map static info about parkings in Ghent to the graph
-    // (Name, lat, long, ID, number of spaces, opening times)
-    \otn\linkeddatex2\GhentToRDF::map("http://opendataportaalmobiliteitsbedrijf.stad.gent/datex2/v2/parkings/", $graph);
+    $parkings = GraphProcessor::get_parkings_from_graph($arr_graph);
 
-    // Map dynamic info about parkings in Ghent to the graph
-    // (ID, occupancy, availability status, opening status)
-    \otn\linkeddatex2\GhentToRDF::map("http://opendataportaalmobiliteitsbedrijf.stad.gent/datex2/v2/parkingsstatus", $graph);
+    $static_data = GraphProcessor::strip_static_data_from_parkings($parkings);
 
-    // Convert the graph to a PHP RDF array
-    $rdf_graph = $graph->toRdfPhp();
-
-    // Define prefixes
-    $datex = "http://vocab.datex.org/terms#";
-    $owl = "http://www.w3.org/2002/07/owl#";
-
-    // Get all parkings from PHP RDF array
-    // TODO this is ugly, there is probably a better way
-    $parking_prefix = "https://stad.gent/id/parking/P";
-    $parking_nums = array(1,2,4,7,8,10);
-    foreach($parking_nums as $p_num) {
-        $parking = $rdf_graph[$parking_prefix . $p_num];
-        $desc = $parking["http://purl.org/dc/terms/description"][0]['value'];
-        print($desc . ":\n");
-        print("\t" . "Total number of spaces: " . $parking[$datex . "parkingNumberOfSpaces"][0]['value'] . "\n");
-        print("\t" . "Number of vacant spaces: " . $parking[$datex . "parkingNumberOfVacantSpaces"][0]['value'] . "\n");
-    }
-
+    $dynamic_data = GraphProcessor::strip_dynamic_data_from_parkings($parkings);
 
     // Save to file
     // TODO
+    var_dump($dynamic_data);
 
     // Wait for next query (this is 1 for testing purposes, should be cache time)
     sleep(1);
