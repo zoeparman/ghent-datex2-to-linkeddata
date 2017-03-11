@@ -1,3 +1,5 @@
+src/out
+
 .idea
 .idea/*
 test_server.sh
