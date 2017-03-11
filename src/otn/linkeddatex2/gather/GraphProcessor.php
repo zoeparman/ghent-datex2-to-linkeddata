@@ -4,6 +4,11 @@ namespace otn\linkeddatex2\gather;
 
 use otn\linkeddatex2\GhentToRDF;
 
+/**
+ * Class GraphProcessor
+ * @package otn\linkeddatex2\gather
+ * Contains static methods for constructing the RDF graph and stripping data
+ */
 class GraphProcessor
 {
     private static $prefixes = array(
@@ -21,6 +26,10 @@ class GraphProcessor
 
     private static $parking_nums = array(1,2,4,7,8,10);
 
+    /**
+     * Construct the graph using data from two websites.
+     * @return array: A PHP array containing the parking graph.
+     */
     public static function construct_graph() {
         $graph = new \EasyRdf_Graph(); // Initializing here allows PHPStorm to infer methods and properties
 
@@ -38,6 +47,10 @@ class GraphProcessor
         return $arr_graph;
     }
 
+    /**
+     * Construct a stub graph for offline testing.
+     * @return array: A PHP array containing a stub for the parking graph.
+     */
     public static function construct_stub_graph() {
         $result = array();
 
@@ -52,6 +65,10 @@ class GraphProcessor
         return $result;
     }
 
+    /**
+     * @param $arr_graph: A PHP array containing the graph
+     * @return array: Map parking numbers to their respective graph data
+     */
     public static function get_parkings_from_graph($arr_graph) {
         $result = array();
 
@@ -62,6 +79,10 @@ class GraphProcessor
         return $result;
     }
 
+    /**
+     * @param $parkings: Map parking numbers to their respective graph data
+     * @return array: Static data from the graph (description, total spaces) for each parking
+     */
     public static function strip_static_data_from_parkings($parkings) {
         $result = array("type" => "static");
 
@@ -77,6 +98,10 @@ class GraphProcessor
         return $result;
     }
 
+    /**
+     * @param $parkings: Map parking numbers to their respective graph data
+     * @return array: Dynamic data from the graph (vacant spaces) for each parking
+     */
     public static function strip_dynamic_data_from_parkings($parkings) {
         $result = array("time" => date("Gis"), "type" => "dynamic");
 
