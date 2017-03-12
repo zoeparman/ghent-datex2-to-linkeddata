@@ -37,6 +37,17 @@ class FragmentedWriter
         }
     }
 
+    // TODO this is code duplication with ParkingDeserializer.php
+    public function clear_directory() {
+        $files = $this->filesystem->listContents();
+        foreach ($files as $file) {
+            if (substr($file['basename'], 0, strlen($this->base_filename)) === $this->base_filename) {
+                $this->filesystem->delete($file['basename']);
+            }
+        }
+        $this->current_fragment = 0;
+    }
+
     /**
      * @return string: Filename for current chunk
      */
