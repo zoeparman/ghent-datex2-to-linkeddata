@@ -43,7 +43,6 @@ class DeployingWriter
     }
 
     // TODO can flysystem append to files?
-    // TODO keep buffer as property
     /**
      * Appends content to the fragmented file. Creates new chunk when file size limit is reached.
      * @param $content: The content to append to the file.
