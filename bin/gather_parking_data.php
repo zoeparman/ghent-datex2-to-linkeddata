@@ -5,14 +5,14 @@ require __DIR__ . '/../vendor/autoload.php';
 // TODO use caching headers to determine if querying is necessary
 
 use otn\linkeddatex2\gather\GraphProcessor;
-use otn\linkeddatex2\gather\FragmentManager;
+use otn\linkeddatex2\gather\DeployingWriter;
 
 $start_time = time();
 $duration = 60*60*4; // 4 hours of recording
 $KiB = 1024; // readability
 
 date_default_timezone_set("Europe/Brussels");
-$writer = new FragmentManager(date("Ymd"), __DIR__ . '/out', 10*$KiB); // 10 KiB for testing
+$writer = new DeployingWriter(date("Ymd"), __DIR__ . '/out', 10*$KiB); // 10 KiB for testing
 $writer->clear_directory(); // Start over from 0 (for testing)
 $interval = 30; // TODO use caching headers when available
 $static_data_written = false;
