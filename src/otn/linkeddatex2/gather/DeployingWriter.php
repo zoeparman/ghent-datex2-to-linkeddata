@@ -17,6 +17,7 @@ class DeployingWriter
     private $deployment_filesystem;
     private $tmp_filename;
     private $max_chunk_size;
+    private $deployment_metadata;
 
     /**
      * FragmentedWriter constructor.
@@ -37,12 +38,15 @@ class DeployingWriter
 
     }
 
+    public function set_deployment_metadata($metadata) {
+        $this->deployment_metadata = $metadata;
+    }
+
     // TODO can flysystem append to files?
     // TODO keep buffer as property
     /**
      * Appends content to the fragmented file. Creates new chunk when file size limit is reached.
      * @param $content: The content to append to the file.
-     * @return true if a fragment was wrapped up
      */
     public function write($content) {
         $current_content = "";
@@ -88,12 +92,17 @@ class DeployingWriter
             }
         }
 
-        // JSON encode to public directory
+        // Add deployment metadata
+        $wrapped_data["metadata"] = $this->deployment_metadata;
+
+        // Rename previous and add link if previous exists
         if ($publish_filesystem->has("current.json")) {
             $new_filename = time() . ".json";
             $publish_filesystem->rename("current.json", $new_filename);
             $wrapped_data["previous"] = "public/parking/" . $new_filename;
         }
+
+        // Publish new file and delete temporary
         $publish_filesystem->put("current.json", json_encode($wrapped_data, JSON_PRETTY_PRINT));
         $read_filesystem->delete($this->tmp_filename);
     }
