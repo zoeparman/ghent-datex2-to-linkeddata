@@ -78,5 +78,6 @@ Class GhentToRDF
                 
             }
         }
+        return $res->getHeaders();
     }
 }

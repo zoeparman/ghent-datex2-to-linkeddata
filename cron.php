@@ -24,8 +24,11 @@ function acquire_data() {
     // GRAPH CONSTRUCTION AND DATA STRIPPING
     // TODO CACHE HEADERS?
     // https://github.com/peppeocchi/php-cron-scheduler
-    //$arr_graph = GraphProcessor::construct_graph();
-    $arr_graph = GraphProcessor::construct_stub_graph(); // Use this for testing if site is down
+    $result = GraphProcessor::construct_graph(true);
+    $arr_graph = $result["graph"];
+    $static_headers = $result["static_headers"];
+    $dynamic_headers = $result["dynamic_headers"]; //TODO when website uses caching headers, we can use these to regulate querying frequency
+    //$arr_graph = GraphProcessor::construct_stub_graph(); // Use this for testing if site is down
     $parkings = GraphProcessor::get_parkings_from_graph($arr_graph);
     $static_data = GraphProcessor::strip_static_data_from_parkings($parkings);
     $writer->set_deployment_metadata($static_data); // TODO this shouldn't happen every time, use cache headers
