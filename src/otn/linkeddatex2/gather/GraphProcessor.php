@@ -57,8 +57,8 @@ class GraphProcessor
         foreach(self::$parking_nums as $p_num) {
             $result[self::$prefixes["parking"] . $p_num] = array(
                 self::$urls["description"] => array(array('value' => 'TEST_PARKING_' . $p_num)),
-                self::$prefixes["datex"] . self::$prefixes["total_spaces"] => array(array('value' => $p_num*100)),
-                self::$prefixes["datex"] . self::$prefixes["vacant_spaces"] => array(array('value' => $p_num*20)),
+                self::$prefixes["datex"] . self::$prefixes["total_spaces"] => array(array('value' => (string)($p_num*100))),
+                self::$prefixes["datex"] . self::$prefixes["vacant_spaces"] => array(array('value' => (string)($p_num*20))),
             );
         }
 

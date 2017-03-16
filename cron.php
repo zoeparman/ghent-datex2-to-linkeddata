@@ -11,8 +11,10 @@ use GO\Scheduler;
 // TODO FIRST deploy this to testing laptop
 
 // Scheduler setup
-$scheduler = new Scheduler();
-$scheduler->call('acquire_data')->at('* * * * *');
+//$scheduler = new Scheduler();
+//$scheduler->call('acquire_data')->at('* * * * *');
+
+acquire_data();
 
 function acquire_data() {
     $KiB = 1024; // readability

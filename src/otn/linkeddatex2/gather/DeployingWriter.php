@@ -73,6 +73,7 @@ class DeployingWriter
     }
 
     private function deploy(Filesystem $read_filesystem, Filesystem $publish_filesystem, $fragment_filename) {
+        print("Deploying\n");
         // Init filesystem
         $lines = explode(PHP_EOL, $read_filesystem->read($fragment_filename));
 
