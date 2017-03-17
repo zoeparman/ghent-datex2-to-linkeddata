@@ -20,16 +20,12 @@ $scheduler->call(function() {
 })->at('* * * * *')->output(__DIR__.'/log/cronjob.log');
 $scheduler->run();
 
-/*acquire_data();
-sleep(30);
-acquire_data();*/
-
 function acquire_data() {
     echo "Acquiring";
     $KiB = 1024; // readability
     $minute = 60; // readability
     date_default_timezone_set("Europe/Brussels");
-    $writer = new DeployingWriter(__DIR__ . '/public/parking', 0.5*$KiB); // 10 KiB for testing
+    $writer = new DeployingWriter(__DIR__ . '/public/parking/json', 0.5*$KiB); // 10 KiB for testing
     $resources_adapter = new Local(__DIR__ . "/resources");
     $resources = new Filesystem($resources_adapter);
     $static_refresh_interval = 10*$minute;

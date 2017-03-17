@@ -109,7 +109,7 @@ class GraphProcessor
      * @return array: Dynamic data from the graph (vacant spaces) for each parking
      */
     public static function strip_dynamic_data_from_parkings($parkings) {
-        $result = array("time" => date("Gis"), "type" => "dynamic");
+        $result = array("time" => date("Y-m-d H:i:s"), "type" => "dynamic");
 
         foreach($parkings as $p_num => $parking) {
             $vacant = $parking[self::$prefixes["datex"] . self::$prefixes["vacant_spaces"]][0]['value'];

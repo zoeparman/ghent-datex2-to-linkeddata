@@ -8,8 +8,8 @@ use \League\Flysystem\Filesystem;
 /**
  * Class FragmentedWriter
  * @package otn\linkeddatex2\gather
- * A file writer using FlySystem that splits a stream of data into equally sized chunks
- * using a [basename]-[chunk_number] format.
+ * A file writer using FlySystem that splits a stream of data into equally sized chunks.
+ * The filename is a timestamp that forms a lower bound on the times the data was written in the file.
  */
 class DeployingWriter
 {
