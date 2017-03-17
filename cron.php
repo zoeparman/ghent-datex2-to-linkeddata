@@ -10,22 +10,29 @@ use League\Flysystem\Filesystem;
 use League\Flysystem\Adapter\Local;
 use GO\Scheduler;
 
-// TODO deploy this to testing laptop
-
 // Scheduler setup
 // https://github.com/peppeocchi/php-cron-scheduler
-//$scheduler = new Scheduler();
-//$scheduler->call('acquire_data')->at('* * * * *');
+$scheduler = new Scheduler();
+$scheduler->call(function() {
+    acquire_data();
+    sleep(30);
+    acquire_data();
+})->at('* * * * *')->output(__DIR__.'/log/cronjob.log');
+$scheduler->run();
 
-acquire_data();
+/*acquire_data();
+sleep(30);
+acquire_data();*/
 
 function acquire_data() {
+    echo "Acquiring";
     $KiB = 1024; // readability
+    $minute = 60; // readability
     date_default_timezone_set("Europe/Brussels");
     $writer = new DeployingWriter(__DIR__ . '/public/parking', 0.5*$KiB); // 10 KiB for testing
     $resources_adapter = new Local(__DIR__ . "/resources");
     $resources = new Filesystem($resources_adapter);
-    $static_refresh_interval = 30;
+    $static_refresh_interval = 10*$minute;
     $static_data = null;
 
     $refresh_static_data = true;
@@ -41,7 +48,10 @@ function acquire_data() {
 
     $result = GraphProcessor::construct_graph($refresh_static_data);
     $arr_graph = $result["graph"];
-    $static_headers = $result["static_headers"];
+    $static_headers = null;
+    if (isset($result["static_headers"])) {
+        $static_headers = $result["static_headers"];
+    }
     $dynamic_headers = $result["dynamic_headers"]; //TODO when website uses caching headers, we can use these to regulate querying frequency
 
     //$arr_graph = GraphProcessor::construct_stub_graph(); // Use this for testing if site is down
