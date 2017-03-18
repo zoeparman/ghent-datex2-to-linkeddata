@@ -111,7 +111,7 @@ class GraphProcessor
      */
     public static function strip_dynamic_data_from_parkings($parkings) {
         // TODO FIRST ISO 8601 FORMAT
-        $result = array("time" => date("Y-m-d H:i:s"), "type" => "dynamic");
+        $result = array("time" => date("Y-m-dTH:i:s"), "type" => "dynamic");
 
         foreach($parkings as $p_num => $parking) {
             $vacant = $parking[self::$prefixes["datex"] . self::$prefixes["vacant_spaces"]][0]['value'];
