@@ -12,16 +12,35 @@ use GO\Scheduler;
 
 // Scheduler setup
 // https://github.com/peppeocchi/php-cron-scheduler
-/*$scheduler = new Scheduler();
-$scheduler->call(function() {
+if ($argc == 0) {
+    $scheduler = new Scheduler();
+    $scheduler->call(function() {
+        acquire_data();
+        sleep(30);
+        acquire_data();
+    })->at('* * * * *')->output(__DIR__.'/log/cronjob.log');
+    $scheduler->run();
+} else if ($argv[1] === "debug") {
     acquire_data();
-    sleep(30);
-    acquire_data();
-})->at('* * * * *')->output(__DIR__.'/log/cronjob.log');
-$scheduler->run();*/
-acquire_data();
+}
 
+/**
+ * This function simply periodically saves the entire turtle file with the current ISO timestamp as filename
+ */
 function acquire_data() {
+    $out_adapter = new Local(__DIR__ . "/public/parking/out");
+    $out = new Filesystem($out_adapter);
+    date_default_timezone_set("Europe/Brussels");
+    $result = GraphProcessor::construct_graph(true);
+    $graph = $result["graph"]; // also has static_headers and dynamic_headers
+    // add time resource and link
+    $out->write(date("Y-m-dTH:i:s") . ".turtle", $graph->serialise("turtle"));
+}
+
+/**
+ * Old version of data acquire function, using json files (deprecated?)
+ */
+function acquire_data_old() {
     // Variables
     $KiB = 1024; // readability
     $minute = 60; // readability
@@ -44,7 +63,7 @@ function acquire_data() {
         }
     }
 
-    // Construct graph
+    // Construct graph and get headers
     $result = GraphProcessor::construct_graph($refresh_static_data);
     //$arr_graph = GraphProcessor::construct_stub_graph(); // Use this for testing if site is down
     $graph = $result["graph"];

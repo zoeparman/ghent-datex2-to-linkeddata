@@ -72,7 +72,7 @@ class GraphProcessor
     }
 
     /**
-     * @param $arr_graph: A PHP array containing the graph
+     * @param $graph: EasyRDF graph
      * @return array: Map parking numbers to their respective graph data
      */
     public static function get_parkings_from_graph($graph) {
@@ -110,7 +110,6 @@ class GraphProcessor
      * @return array: Dynamic data from the graph (vacant spaces) for each parking
      */
     public static function strip_dynamic_data_from_parkings($parkings) {
-        // TODO FIRST ISO 8601 FORMAT
         $result = array("time" => date("Y-m-dTH:i:s"), "type" => "dynamic");
 
         foreach($parkings as $p_num => $parking) {
