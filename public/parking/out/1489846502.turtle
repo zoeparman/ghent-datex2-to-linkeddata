@@ -1,0 +1,10 @@
+@prefix ns0: <p> .
+
+[]
+  ns0:arking_1 "Vrijdagmarkt", "647" ;
+  ns0:arking_2 "Reep", "470" ;
+  ns0:arking_4 "Savaanstraat", "540" ;
+  ns0:arking_7 "Sint-Michiels", "450" ;
+  ns0:arking_8 "Ramen", "266" ;
+  ns0:arking_10 "Sint-Pietersplein", "708" .
+

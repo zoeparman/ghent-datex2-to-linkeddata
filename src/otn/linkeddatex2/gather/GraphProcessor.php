@@ -4,6 +4,8 @@ namespace otn\linkeddatex2\gather;
 
 use otn\linkeddatex2\GhentToRDF;
 
+// TODO use EasyRDF graph object instead of PHP/RDF
+
 /**
  * Class GraphProcessor
  * @package otn\linkeddatex2\gather
@@ -46,9 +48,7 @@ class GraphProcessor
         $dynamic_headers = GhentToRDF::map(self::$urls["dynamic_data"], $graph);
         $result["dynamic_headers"] = $dynamic_headers;
 
-        // Convert the graph to a PHP RDF array
-        $arr_graph = $graph->toRdfPhp();
-        $result["graph"] = $arr_graph;
+        $result["graph"] = $graph;
 
         return $result;
     }
@@ -75,7 +75,8 @@ class GraphProcessor
      * @param $arr_graph: A PHP array containing the graph
      * @return array: Map parking numbers to their respective graph data
      */
-    public static function get_parkings_from_graph($arr_graph) {
+    public static function get_parkings_from_graph($graph) {
+        $arr_graph = $graph->toRdfPhp();
         $result = array();
 
         foreach(self::$parking_nums as $p_num) {
@@ -109,6 +110,7 @@ class GraphProcessor
      * @return array: Dynamic data from the graph (vacant spaces) for each parking
      */
     public static function strip_dynamic_data_from_parkings($parkings) {
+        // TODO FIRST ISO 8601 FORMAT
         $result = array("time" => date("Y-m-d H:i:s"), "type" => "dynamic");
 
         foreach($parkings as $p_num => $parking) {

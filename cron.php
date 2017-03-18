@@ -12,25 +12,27 @@ use GO\Scheduler;
 
 // Scheduler setup
 // https://github.com/peppeocchi/php-cron-scheduler
-$scheduler = new Scheduler();
+/*$scheduler = new Scheduler();
 $scheduler->call(function() {
     acquire_data();
     sleep(30);
     acquire_data();
 })->at('* * * * *')->output(__DIR__.'/log/cronjob.log');
-$scheduler->run();
+$scheduler->run();*/
+acquire_data();
 
 function acquire_data() {
-    echo "Acquiring";
+    // Variables
     $KiB = 1024; // readability
     $minute = 60; // readability
     date_default_timezone_set("Europe/Brussels");
-    $writer = new DeployingWriter(__DIR__ . '/public/parking/json', 0.5*$KiB); // 10 KiB for testing
+    $writer = new DeployingWriter(__DIR__ . '/public/parking/out', 0.5*$KiB); // 10 KiB for testing
     $resources_adapter = new Local(__DIR__ . "/resources");
     $resources = new Filesystem($resources_adapter);
     $static_refresh_interval = 10*$minute;
     $static_data = null;
 
+    // Check if necessary to query static data
     $refresh_static_data = true;
     if ($resources->has("static_data")) {
         $static_str = $resources->read("static_data");
@@ -42,16 +44,17 @@ function acquire_data() {
         }
     }
 
+    // Construct graph
     $result = GraphProcessor::construct_graph($refresh_static_data);
-    $arr_graph = $result["graph"];
+    //$arr_graph = GraphProcessor::construct_stub_graph(); // Use this for testing if site is down
+    $graph = $result["graph"];
     $static_headers = null;
     if (isset($result["static_headers"])) {
         $static_headers = $result["static_headers"];
     }
     $dynamic_headers = $result["dynamic_headers"]; //TODO when website uses caching headers, we can use these to regulate querying frequency
 
-    //$arr_graph = GraphProcessor::construct_stub_graph(); // Use this for testing if site is down
-    $parkings = GraphProcessor::get_parkings_from_graph($arr_graph);
+    $parkings = GraphProcessor::get_parkings_from_graph($graph);
     if ($refresh_static_data) {
         $static_data = GraphProcessor::strip_static_data_from_parkings($parkings);
         $resources->update("static_data", serialize(array(

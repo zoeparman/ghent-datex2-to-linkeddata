@@ -13,9 +13,10 @@ class Aggregator
 
     // Pass times as YYYY-MM-DD hh:mm:ss
     public function aggregate($from, $to) {
-        // TODO check arguments:
-        // TODO     - to must be after from
-        // TODO     - from and to must correctly parse to timestamps
+        // check arguments:
+        //      - to must be after from
+        //      - from and to must correctly parse to timestamps
+        // TODO THIS SHOULD BE A CLIENT SIDE APPLICATION
         $result = array();
         $from_timestamp = strtotime($from);
 
