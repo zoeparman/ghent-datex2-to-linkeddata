@@ -50,10 +50,10 @@ function acquire_data() {
     // Describe file timestamp and link to previous turtle file in triple
     // TODO use timestamp link as argument for php access point?
     \EasyRdf_Namespace::set("purl", "http://purl.org/dc/terms/");
-    \EasyRdf_Namespace::set("search", "http://vocab.deri.ie/search");
+    \EasyRdf_Namespace::set("search", "http://vocab.deri.ie/search#");
     $resource = $graph->resource("http://linked.open.gent/parking#current");
-    $resource->add("purl:created", date("Y-m-dTH:i:s"));
-    $resource->add("search:previous", $latest_filename);
+    $resource->add('purl:created', date("Y-m-dTH:i:s"));
+    $resource->add('search:previous', $latest_filename);
 
     // write to file
     $out->write(date("Y-m-dTH:i:s") . ".turtle", $graph->serialise("turtle"));
