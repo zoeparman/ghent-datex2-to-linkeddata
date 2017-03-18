@@ -12,6 +12,7 @@ use GO\Scheduler;
 
 // Scheduler setup
 // https://github.com/peppeocchi/php-cron-scheduler
+// If this script is called with argument "debug", it will simply acquire and write data once
 if ($argc == 0) {
     $scheduler = new Scheduler();
     $scheduler->call(function() {
@@ -33,7 +34,28 @@ function acquire_data() {
     date_default_timezone_set("Europe/Brussels");
     $result = GraphProcessor::construct_graph(true);
     $graph = $result["graph"]; // also has static_headers and dynamic_headers
-    // add time resource and link
+
+    // Get name of last file
+    $out_adapter = new Local(__DIR__ . "/public/parking/out");
+    $out = new Filesystem($out_adapter);
+    $all = $out->listContents();
+    $max_timestamp = 0; $latest_filename = null;
+    foreach ($all as $index => $file) {
+        if ($file["timestamp"] > $max_timestamp) {
+            $max_timestamp = $file["timestamp"];
+            $latest_filename = $file["filename"];
+        }
+    }
+
+    // Describe file timestamp and link to previous turtle file in triple
+    // TODO use timestamp link as argument for php access point?
+    \EasyRdf_Namespace::set("purl", "http://purl.org/dc/terms/");
+    \EasyRdf_Namespace::set("search", "http://vocab.deri.ie/search");
+    $resource = $graph->resource("http://linked.open.gent/parking#current");
+    $resource->add("purl:created", date("Y-m-dTH:i:s"));
+    $resource->add("search:previous", $latest_filename);
+
+    // write to file
     $out->write(date("Y-m-dTH:i:s") . ".turtle", $graph->serialise("turtle"));
 }
 
