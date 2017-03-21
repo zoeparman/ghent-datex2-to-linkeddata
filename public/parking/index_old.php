@@ -1,6 +1,8 @@
 <?php
 require __DIR__ . '/../../vendor/autoload.php';
 
+//TODO deprecated?
+
 $graph = null;
 
 // Map static info about parkings in Ghent to the graph

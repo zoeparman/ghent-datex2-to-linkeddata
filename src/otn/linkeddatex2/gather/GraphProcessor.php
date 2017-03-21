@@ -4,8 +4,6 @@ namespace otn\linkeddatex2\gather;
 
 use otn\linkeddatex2\GhentToRDF;
 
-// TODO use EasyRDF graph object instead of PHP/RDF
-
 /**
  * Class GraphProcessor
  * @package otn\linkeddatex2\gather
@@ -30,27 +28,21 @@ class GraphProcessor
 
     /**
      * Construct the graph using data from two websites.
-     * @return array: A PHP array containing the parking graph.
+     * @return $graph: A PHP array containing the parking graph.
      */
-    public static function construct_graph($with_static) {
+    public static function construct_graph() {
         $graph = new \EasyRdf_Graph(); // Initializing here allows PHPStorm to infer methods and properties
-        $result = array();
 
-        if ($with_static) {
-            // Map static info about parkings in Ghent to the graph
-            // (Name, lat, long, ID, number of spaces, opening times)
-            $static_headers = GhentToRDF::map(self::$urls["static_data"], $graph);
-            $result["static_headers"] = $static_headers;
-        }
+        // TODO save once, don't request
+        // Map static info about parkings in Ghent to the graph
+        // (Name, lat, long, ID, number of spaces, opening times)
+        GhentToRDF::map(self::$urls["static_data"], $graph);
 
         // Map dynamic info about parkings in Ghent to the graph
         // (ID, occupancy, availability status, opening status)
-        $dynamic_headers = GhentToRDF::map(self::$urls["dynamic_data"], $graph);
-        $result["dynamic_headers"] = $dynamic_headers;
+        GhentToRDF::map(self::$urls["dynamic_data"], $graph);
 
-        $result["graph"] = $graph;
-
-        return $result;
+        return $graph;
     }
 
     /**
@@ -71,54 +63,9 @@ class GraphProcessor
         return $result;
     }
 
-    // TODO ALL CODE FROM HERE ON IS PROBABLY OBSOLETE
-
-    /**
-     * @param $graph: EasyRDF graph
-     * @return array: Map parking numbers to their respective graph data
-     */
-    public static function get_parkings_from_graph($graph) {
-        $arr_graph = $graph->toRdfPhp();
-        $result = array();
-
-        foreach(self::$parking_nums as $p_num) {
-            $result[$p_num] = $arr_graph[self::$prefixes["parking"] . $p_num];
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param $parkings: Map parking numbers to their respective graph data
-     * @return array: Static data from the graph (description, total spaces) for each parking
-     */
-    public static function strip_static_data_from_parkings($parkings) {
-        $result = array("type" => "static");
-
-        foreach($parkings as $p_num => $parking) {
-            $desc = $parking[self::$urls["description"]][0]['value'];
-            $total = $parking[self::$prefixes["datex"] . self::$prefixes["total_spaces"]][0]['value'];
-            $result["parking_" . $p_num] = array(
-                "description" => $desc,
-                "total_spaces" => $total
-            );
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param $parkings: Map parking numbers to their respective graph data
-     * @return array: Dynamic data from the graph (vacant spaces) for each parking
-     */
-    public static function strip_dynamic_data_from_parkings($parkings) {
-        $result = array("time" => date("Y-m-dTH:i:s"), "type" => "dynamic");
-
-        foreach($parkings as $p_num => $parking) {
-            $vacant = $parking[self::$prefixes["datex"] . self::$prefixes["vacant_spaces"]][0]['value'];
-            $result["parking_" . $p_num] = $vacant;
-        }
-
-        return $result;
+    public static function get_static_data() {
+        $graph = new \EasyRdf_Graph();
+        GhentToRDF::map(self::$urls["static_data"], $graph);
+        return $graph;
     }
 }
