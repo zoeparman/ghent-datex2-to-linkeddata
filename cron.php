@@ -50,6 +50,7 @@ function acquire_data() {
     }
 
     // Describe file timestamp and link to previous turtle file in triple
+    // TODO this should be generated upon request, not actually written to disk
     \EasyRdf_Namespace::set("purl", "http://purl.org/dc/terms/");
     \EasyRdf_Namespace::set("search", "http://vocab.deri.ie/search#");
     $resource = $graph->resource("http://linked.open.gent/parking#current");
