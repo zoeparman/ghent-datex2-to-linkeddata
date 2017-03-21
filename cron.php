@@ -23,8 +23,6 @@ if ($argc == 1) {
     $scheduler->run();
 } else if ($argv[1] === "debug") {
     acquire_data();
-} else if ($argv[1] === "refresh_static") {
-    ParkingHistoryFilesystem::refresh_static_data();
 }
 
 /**
@@ -33,9 +31,9 @@ if ($argc == 1) {
  */
 // TODO FIRST group files by 15 minutes (this is +-75 KiB)
 function acquire_data() {
-    $out_adapter = new Local(__DIR__ . "/public/parking/out");
-    $out = new Filesystem($out_adapter);
-    date_default_timezone_set("Europe/Brussels");
+    $fs = new ParkingHistoryFilesystem(__DIR__ . "/public/parking/out", __DIR__ . "/resources");
+
+    date_default_timezone_set("Europe/Brussels"); // TODO is this still necessary?
     $graph = GraphProcessor::construct_graph();
 
     // Describe file timestamp and link to previous turtle file in triple
@@ -43,5 +41,5 @@ function acquire_data() {
     // TODO this shouldn't be written to disk, only dynamic
 
     // write to file
-    $out->write(date("c") . ".turtle", $graph->serialise("turtle"));
+    $fs->write_measurement(date("c"), $graph);
 }
