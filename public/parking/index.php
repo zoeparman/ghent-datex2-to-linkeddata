@@ -29,7 +29,8 @@ if (!isset($_GET['page']) && !isset($_GET['time'])) {
     // If page name is provided, it must be exact
     $filename = $_GET["page"];
     if (!$out->has($filename)) {
-        die("Invalid page name provided");
+        http_response_code(404);
+        die();
     }
 } else if (isset($_GET['time'])) {
     // If time stamp is provided, find the file containing relevant info
