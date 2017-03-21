@@ -50,7 +50,7 @@ if (!isset($_GET['page']) && !isset($_GET['time'])) {
     $filename = $current_file["basename"];
 }
 
-if (isset($_GET['time'])) {
+if (!isset($_GET['page'])) {
     header('Location: http://' . $_SERVER["SERVER_NAME"] . '/parking?page=' . $filename);
 } else {
     $latest_file_contents = $out->read($filename);
