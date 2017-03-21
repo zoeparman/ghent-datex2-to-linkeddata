@@ -71,6 +71,8 @@ class GraphProcessor
         return $result;
     }
 
+    // TODO ALL CODE FROM HERE ON IS PROBABLY OBSOLETE
+
     /**
      * @param $graph: EasyRDF graph
      * @return array: Map parking numbers to their respective graph data

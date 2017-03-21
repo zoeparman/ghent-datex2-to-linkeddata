@@ -13,7 +13,7 @@ use GO\Scheduler;
 // Scheduler setup
 // https://github.com/peppeocchi/php-cron-scheduler
 // If this script is called with argument "debug", it will simply acquire and write data once
-if ($argc == 0) {
+if ($argc == 1) {
     $scheduler = new Scheduler();
     $scheduler->call(function() {
         acquire_data();
@@ -22,11 +22,13 @@ if ($argc == 0) {
     })->at('* * * * *')->output(__DIR__.'/log/cronjob.log');
     $scheduler->run();
 } else if ($argv[1] === "debug") {
+    echo $argc;
     acquire_data();
 }
 
 /**
  * This function simply periodically saves the entire turtle file with the current ISO timestamp as filename
+ * + triples for timestamp and filename of previous file
  */
 function acquire_data() {
     $out_adapter = new Local(__DIR__ . "/public/parking/out");
@@ -48,7 +50,6 @@ function acquire_data() {
     }
 
     // Describe file timestamp and link to previous turtle file in triple
-    // TODO use timestamp link as argument for php access point?
     \EasyRdf_Namespace::set("purl", "http://purl.org/dc/terms/");
     \EasyRdf_Namespace::set("search", "http://vocab.deri.ie/search#");
     $resource = $graph->resource("http://linked.open.gent/parking#current");

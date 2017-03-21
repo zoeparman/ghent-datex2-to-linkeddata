@@ -1,23 +1,42 @@
 <?php
 require __DIR__ . '/../../vendor/autoload.php';
 
-$graph = null;
+use \League\Flysystem\Adapter\Local;
+use \League\Flysystem\Filesystem;
 
-// Map static info about parkings in Ghent to the graph
-// (Name, lat, long, ID, number of spaces, opening times)
-\otn\linkeddatex2\GhentToRDF::map("http://opendataportaalmobiliteitsbedrijf.stad.gent/datex2/v2/parkings/", $graph);
-
-// Map dynamic info about parkings in Ghent to the graph
-// (ID, occupancy, availability status, opening status)
-\otn\linkeddatex2\GhentToRDF::map("http://opendataportaalmobiliteitsbedrijf.stad.gent/datex2/v2/parkingsstatus", $graph);
-
-// Add metadata (hydra and license)
-\otn\linkeddatex2\Metadata::addToGraph($graph);
+// Usage: record.php -> get latest record. Contains a timestamp of the previous file
+//        record.php?timestamp=YYYY-MM-DDCEThh:mm:ss -> get record with given timestamp
 
 // If no preferred content type is specified, prefer turtle
 if (!$_SERVER['HTTP_ACCEPT']) {
     $_SERVER['HTTP_ACCEPT'] = 'text/turtle';
 }
+
+$graph = null; $filename = null;
+$out_adapter = new Local(__DIR__ . "/out");
+$out = new Filesystem($out_adapter);
+
+if (!isset($_GET['timestamp'])) {
+    // If no timestamp provided, get current file (highest timestamp)
+    $all = $out->listContents();
+    $max_timestamp = 0; $latest_file = null;
+    foreach ($all as $index => $file) {
+        if ($file["timestamp"] > $max_timestamp) {
+            $max_timestamp = $file["timestamp"];
+            $latest_file = $file;
+        }
+    }
+    $filename = $latest_file["basename"];
+} else {
+    $filename = $_GET["timestamp"] . ".turtle";
+    if (!$out->has($filename)) {
+        die("Invalid timestamp provided");
+    }
+}
+
+$latest_file_contents = $out->read($filename);
+$graph = new EasyRdf_Graph();
+$graph->parse($latest_file_contents, "turtle");
 
 // Set HTTP headers and serialize graph
 \otn\linkeddatex2\View::view($_SERVER['HTTP_ACCEPT'],$graph);

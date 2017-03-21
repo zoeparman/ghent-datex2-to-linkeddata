@@ -5,6 +5,8 @@ namespace otn\linkeddatex2\gather;
 use \League\Flysystem\Adapter\Local;
 use \League\Flysystem\Filesystem;
 
+// TODO POSSIBLY DEPRECATED
+
 /**
  * Class FragmentedWriter
  * @package otn\linkeddatex2\gather
