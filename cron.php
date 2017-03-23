@@ -5,8 +5,6 @@ require __DIR__ . '/vendor/autoload.php';
  */
 
 use otn\linkeddatex2\gather\GraphProcessor;
-use League\Flysystem\Filesystem;
-use League\Flysystem\Adapter\Local;
 use otn\linkeddatex2\gather\ParkingHistoryFilesystem;
 use GO\Scheduler;
 
@@ -32,14 +30,7 @@ if ($argc == 1) {
 // TODO FIRST group files by 15 minutes (this is +-75 KiB)
 function acquire_data() {
     $fs = new ParkingHistoryFilesystem(__DIR__ . "/public/parking/out", __DIR__ . "/resources");
-
-    date_default_timezone_set("Europe/Brussels"); // TODO is this still necessary?
+    // TODO use ParkingStatusOriginTime
     $graph = GraphProcessor::construct_graph();
-
-    // Describe file timestamp and link to previous turtle file in triple
-    // TODO use hydra with HTTP urls here
-    // TODO this shouldn't be written to disk, only dynamic
-
-    // write to file
-    $fs->write_measurement(date("c"), $graph);
+    $fs->write_measurement(time(), $graph);
 }

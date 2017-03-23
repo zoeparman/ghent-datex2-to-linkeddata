@@ -28,18 +28,14 @@ class GraphProcessor
 
     /**
      * Construct the graph using data from two websites.
-     * @return $graph: A PHP array containing the parking graph.
+     * @return \EasyRdf_Graph $graph: RDF graph containing parking info
      */
     public static function construct_graph() {
         $graph = new \EasyRdf_Graph(); // Initializing here allows PHPStorm to infer methods and properties
 
-        // TODO save once, don't request
-        // Map static info about parkings in Ghent to the graph
-        // (Name, lat, long, ID, number of spaces, opening times)
-        GhentToRDF::map(self::$urls["static_data"], $graph);
-
-        // Map dynamic info about parkings in Ghent to the graph
+        // Map real-time info about parkings in Ghent to the graph
         // (ID, occupancy, availability status, opening status)
+        // Slowly changing info (name, description, etc) is saved once and added upon request
         GhentToRDF::map(self::$urls["dynamic_data"], $graph);
 
         return $graph;
