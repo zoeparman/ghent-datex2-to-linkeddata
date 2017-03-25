@@ -4,6 +4,8 @@ require __DIR__ . '/vendor/autoload.php';
  * This script will be called periodically as a cron job.
  */
 
+// TODO: update README: folders, rights, cron, etc
+
 use otn\linkeddatex2\gather\GraphProcessor;
 use otn\linkeddatex2\gather\ParkingHistoryFilesystem;
 use GO\Scheduler;
@@ -27,7 +29,6 @@ if ($argc == 1) {
  * This function simply periodically saves the entire turtle file with the current ISO timestamp as filename
  * + triples for timestamp and filename of previous file
  */
-// TODO FIRST group files by 15 minutes (this is +-75 KiB)
 function acquire_data() {
     $fs = new ParkingHistoryFilesystem(__DIR__ . "/public/parking/out", __DIR__ . "/resources");
     // TODO use ParkingStatusOriginTime

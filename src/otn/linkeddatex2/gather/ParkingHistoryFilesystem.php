@@ -11,7 +11,6 @@ class ParkingHistoryFilesystem
     private $res_fs;
     private $basename_length;
     private $minute_interval;
-    private $newest_timestamp;
 
     public function __construct($out_dirname, $res_dirname) {
         date_default_timezone_set("Europe/Brussels"); // TODO is this still necessary?
@@ -40,6 +39,37 @@ class ParkingHistoryFilesystem
         return false;
     }
 
+    // Get file contents and add metadata
+    public function get_graph_from_file_with_metadata($filename) {
+        // TODO quads here as well
+        // Add static metadata
+        \EasyRdf_Namespace::set("hydra","http://www.w3.org/ns/hydra/core#");
+        $contents = $this->get_file_contents($filename);
+        $parser = new \EasyRdf_Parser_Turtle();
+        $graph = new \EasyRdf_Graph();
+        $parser->parse($graph, $contents, "turtle", "");
+        $parser->parse($graph, $this->get_static_data(), "turtle", "");
+
+        // Add links to previous, next
+        // TODO probably not entirely right
+        $server = $_SERVER["SERVER_NAME"];
+        if ($_SERVER["SERVER_PORT"] != "80") {
+            $server = $server . ":" . $_SERVER["SERVER_PORT"];
+        }
+        $file_resource = $server . "/parking?page=" . $filename;
+        $file_timestamp = strtotime(substr($filename, 0, $this->basename_length));
+        $graph->resource($file_resource);
+        $prev = $this->get_prev_for_timestamp($file_timestamp);
+        $next = $this->get_next_for_timestamp($file_timestamp);
+        if ($prev) {
+            $graph->add($file_resource, "hydra:previous", $server . "/parking?page=" . $prev);
+        }
+        if ($next) {
+            $graph->add($file_resource, "hydra:next", $server . "/parking?page=" . $next);
+        }
+        return $graph;
+    }
+
     // Get page closest to requested timestamp
     public function get_closest_page_for_timestamp($timestamp) {
         if (!$this->has_file($this->get_filename_for_timestamp($timestamp))) {
@@ -52,8 +82,8 @@ class ParkingHistoryFilesystem
     // Get next page for requested timestamp
     public function get_next_for_timestamp($timestamp) {
         $timestamp = $this->round_timestamp($timestamp);
-        $newest = $this->get_newest_timestamp();
-        while($timestamp < $newest) {
+        $now = time();
+        while($timestamp < $now) {
             $timestamp += $this->minute_interval*60;
             $filename = $this->get_filename_for_timestamp($timestamp);
             if ($this->out_fs->has($filename)) {
@@ -79,9 +109,9 @@ class ParkingHistoryFilesystem
         return false;
     }
 
-    // Get the last written page
+    // Get the last written page (closest to now)
     public function get_last_page() {
-        return $this->get_closest_page_for_timestamp($this->get_newest_timestamp());
+        return $this->get_closest_page_for_timestamp(time());
     }
 
     // Write a measurement to a page
@@ -91,11 +121,11 @@ class ParkingHistoryFilesystem
         if (!$this->res_fs->has("oldest_timestamp")) {
             $this->res_fs->write("oldest_timestamp", $rounded);
         }
-        $this->newest_timestamp = $timestamp;
 
         $filename = $this->get_filename_for_timestamp($timestamp);
 
-        // TODO add graph using sensor ontology (ParkingStatusOriginTime, see GhentToRDF.php)
+        // TODO use quads!
+        // TODO <https://stad.gent/id/parking/P7> datex:parkingNumberOfVacantSpaces "285" <http://linked.data.gent/parking/?time=2017-03-23T15:46:38>
         $contents = "";
         if ($this->out_fs->has($filename)) {
             $contents = $this->out_fs->read($filename) . "\n";
@@ -127,13 +157,13 @@ class ParkingHistoryFilesystem
         return false;
     }
 
-    // Get the latest timestamp for which a file exists
-    private function get_newest_timestamp() {
-        return $this->newest_timestamp;
+    // Get appropriate filename for given timestamp
+    public function get_filename_for_timestamp($timestamp) {
+        return substr(date('c', $this->round_timestamp($timestamp)), 0, $this->basename_length) . ".turtle";
     }
 
-    // Get appropriate filename for given timestamp
-    private function get_filename_for_timestamp($timestamp) {
-        return substr(date('c', $this->round_timestamp($timestamp)), 0, $this->basename_length) . ".turtle";
+    // Get the static data content
+    private function get_static_data() {
+        return $this->res_fs->read("static_data.turtle");
     }
 }

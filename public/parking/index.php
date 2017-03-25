@@ -3,7 +3,6 @@ require __DIR__ . '/../../vendor/autoload.php';
 
 // TODO publish static data with cache header on separate api point (no priority)
 
-
 // If no preferred content type is specified, prefer turtle
 if (!$_SERVER['HTTP_ACCEPT']) {
     $_SERVER['HTTP_ACCEPT'] = 'text/turtle';
@@ -11,7 +10,7 @@ if (!$_SERVER['HTTP_ACCEPT']) {
 
 $graph = null; $filename = null;
 
-$fs = new \otn\linkeddatex2\gather\ParkingHistoryFilesystem(__DIR__ . "/out", __DIR__ . "../../resources");
+$fs = new \otn\linkeddatex2\gather\ParkingHistoryFilesystem(__DIR__ . "/out", __DIR__ . "/../../resources");
 
 if (!isset($_GET['page']) && !isset($_GET['time'])) {
     $filename = $fs->get_last_page();
@@ -32,17 +31,12 @@ if (!isset($_GET['page']) && !isset($_GET['time'])) {
 }
 
 if (!isset($_GET['page'])) {
-    header('Location: http://' . $_SERVER["SERVER_NAME"] . '/parking?page=' . $filename);
+    $server = $_SERVER["SERVER_NAME"];
+    if ($_SERVER["SERVER_PORT"] != "80") {
+        $server = $server . ":" . $_SERVER["SERVER_PORT"];
+    }
+    header('Location: http://' . $server . '/parking?page=' . $filename);
 } else {
-    // TODO content negotiation using views, once graphs are saved properly
-    // TODO add dynamically: static data, link to previous, link to next (hydra) (use get_prev and get_next from PHFS)
-    echo $fs->get_file_contents($filename);
-    /*$contents = $fs->read($filename);
-    $graph = new EasyRdf_Graph();
-    $graph->parse($contents, "turtle");
-
-    // Add extra triples
-
-    // Set HTTP headers and serialize graph
-    \otn\linkeddatex2\View::view($_SERVER['HTTP_ACCEPT'],$graph);*/
+    $graph = $fs->get_graph_from_file_with_metadata($filename);
+    \otn\linkeddatex2\View::view($_SERVER['HTTP_ACCEPT'],$graph);
 }

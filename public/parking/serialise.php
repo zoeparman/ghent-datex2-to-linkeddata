@@ -19,6 +19,8 @@ $graph = new EasyRdf_Graph();
     $me->set('foaf:title', 'Mr');
     $me->set('foaf:nick', 'Joe');
     $me->add('foaf:homepage', $graph->resource('http://example.com/joe/'));
+    $me->add('foaf:homepage', $graph->resource('http://example.com/jack/'));
+    $me->add('foaf:qsdf', "456");
 
     // I made these up; they are not officially part of FOAF
     $me->set('foaf:dateOfBirth', new EasyRdf_Literal_Date('1980-09-08'));
@@ -29,7 +31,8 @@ $graph = new EasyRdf_Graph();
     $me->set('foaf:currentProject', $project);
 
     if (isset($_REQUEST['format'])) {
-        $format = preg_replace("/[^\w\-]+/", '', strtolower($_REQUEST['format']));
+        //$format = preg_replace("/[^\w\-]+/", '', strtolower($_REQUEST['format']));
+        $format = $_REQUEST['format'];
     } else {
         $format = 'ntriples';
     }

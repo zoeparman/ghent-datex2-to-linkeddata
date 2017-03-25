@@ -31,12 +31,21 @@ class GraphProcessor
      * @return \EasyRdf_Graph $graph: RDF graph containing parking info
      */
     public static function construct_graph() {
+        // TODO provide URI as argument
+        // TODO $graph = new \EasyRdf_Graph("http://linked.data.gent/parking/?time=2017-03-23T15:46:38");
         $graph = new \EasyRdf_Graph(); // Initializing here allows PHPStorm to infer methods and properties
 
         // Map real-time info about parkings in Ghent to the graph
         // (ID, occupancy, availability status, opening status)
         // Slowly changing info (name, description, etc) is saved once and added upon request
         GhentToRDF::map(self::$urls["dynamic_data"], $graph);
+
+        // Remove unnecessary information
+        foreach ($graph->resources() as $resource) {
+            $graph->deleteSingleProperty($resource, "datex:parkingSiteStatus");
+            $graph->deleteSingleProperty($resource, "datex:parkingSiteOpeningStatus");
+            $graph->deleteSingleProperty($resource, "owl:sameAs");
+        }
 
         return $graph;
     }
