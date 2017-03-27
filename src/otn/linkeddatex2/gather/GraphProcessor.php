@@ -31,9 +31,9 @@ class GraphProcessor
      * @return \EasyRdf_Graph $graph: RDF graph containing parking info
      */
     public static function construct_graph() {
-        // TODO provide URI as argument
-        // TODO $graph = new \EasyRdf_Graph("http://linked.data.gent/parking/?time=2017-03-23T15:46:38");
-        $graph = new \EasyRdf_Graph(); // Initializing here allows PHPStorm to infer methods and properties
+        $time = substr(date("c"), 0, 19);
+        $base_url = "http://linked.data.gent/parking/?time=";
+        $graph = new \EasyRdf_Graph($base_url . $time); // Initializing here allows PHPStorm to infer methods and properties
 
         // Map real-time info about parkings in Ghent to the graph
         // (ID, occupancy, availability status, opening status)

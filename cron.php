@@ -4,8 +4,6 @@ require __DIR__ . '/vendor/autoload.php';
  * This script will be called periodically as a cron job.
  */
 
-// TODO: update README: folders, rights, cron, etc
-
 use otn\linkeddatex2\gather\GraphProcessor;
 use otn\linkeddatex2\gather\ParkingHistoryFilesystem;
 use GO\Scheduler;

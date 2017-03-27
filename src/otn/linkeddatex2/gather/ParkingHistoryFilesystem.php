@@ -11,6 +11,8 @@ class ParkingHistoryFilesystem
     private $res_fs;
     private $basename_length;
     private $minute_interval;
+    private $trig_serializer;
+    private $trig_parser;
 
     public function __construct($out_dirname, $res_dirname) {
         date_default_timezone_set("Europe/Brussels"); // TODO is this still necessary?
@@ -20,6 +22,9 @@ class ParkingHistoryFilesystem
         $this->res_fs = new Filesystem($res_adapter);
         $this->basename_length = 19;
         $this->minute_interval = 5;
+
+        $this->trig_parser = new TrigParser();
+        $this->trig_serializer = new TrigSerializer();
 
         if (!$this->res_fs->has("static_data.turtle")) {
             $this->refresh_static_data();
@@ -124,13 +129,13 @@ class ParkingHistoryFilesystem
 
         $filename = $this->get_filename_for_timestamp($timestamp);
 
-        // TODO use quads!
-        // TODO <https://stad.gent/id/parking/P7> datex:parkingNumberOfVacantSpaces "285" <http://linked.data.gent/parking/?time=2017-03-23T15:46:38>
-        $contents = "";
+        $trig_graph = array();
         if ($this->out_fs->has($filename)) {
-            $contents = $this->out_fs->read($filename) . "\n";
+            $trig_graph = $this->trig_parser->parse($this->out_fs->read($filename));
         }
-        $this->out_fs->put($filename, $contents . $graph->serialise("turtle"));
+        array_push($trig_graph, $graph);
+        $output = $this->trig_serializer->serialize($trig_graph);
+        $this->out_fs->put($filename, $output);
     }
 
     // Refresh the static data
