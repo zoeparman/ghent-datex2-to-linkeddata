@@ -8,9 +8,11 @@
 namespace otn\linkeddatex2;
 
 
+use otn\linkeddatex2\gather\TrigSerializer;
+
 Class View
 {
-    public static function view($acceptHeader, $graph){
+    private static function headers($acceptHeader) {
         // Content negotiation using vendor/willdurand/negotiation
         $negotiator = new \Negotiation\Negotiator();
         $priorities = array('text/turtle','application/rdf+xml');
@@ -26,6 +28,17 @@ Class View
 
         //As we have content negotiation on this document, don’t cache different representations on one URL hash key
         header("Vary: accept");
+        return $value;
+    }
+
+    public static function view($acceptHeader, $graph){
+        $value = self::headers($acceptHeader);
         echo $graph->serialise($value);
+    }
+
+    public static function view_quads($acceptHeader, $graphs) {
+        $value = self::headers($acceptHeader);
+        $serializer = new TrigSerializer();
+        echo $serializer->serialize($graphs);
     }
 }

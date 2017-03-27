@@ -45,34 +45,39 @@ class ParkingHistoryFilesystem
     }
 
     // Get file contents and add metadata
-    public function get_graph_from_file_with_metadata($filename) {
+    public function get_graphs_from_file_with_metadata($filename) {
         // TODO quads here as well
         // Add static metadata
         \EasyRdf_Namespace::set("hydra","http://www.w3.org/ns/hydra/core#");
         $contents = $this->get_file_contents($filename);
-        $parser = new \EasyRdf_Parser_Turtle();
-        $graph = new \EasyRdf_Graph();
-        $parser->parse($graph, $contents, "turtle", "");
-        $parser->parse($graph, $this->get_static_data(), "turtle", "");
+        $trig_parser = new TrigParser();
+        $turtle_parser = new \EasyRdf_Parser_Turtle();
+        $graphs = $trig_parser->parse($contents);
+        foreach ($graphs as $graph) {
+            $turtle_parser->parse($graph, $this->get_static_data(), "turtle", "");
+        }
 
         // Add links to previous, next
-        // TODO probably not entirely right
+        // TODO how do we call this graph?
         $server = $_SERVER["SERVER_NAME"];
         if ($_SERVER["SERVER_PORT"] != "80") {
             $server = $server . ":" . $_SERVER["SERVER_PORT"];
         }
+        $link_graph = new \EasyRdf_Graph("Links");
         $file_resource = $server . "/parking?page=" . $filename;
         $file_timestamp = strtotime(substr($filename, 0, $this->basename_length));
-        $graph->resource($file_resource);
+        $link_graph->resource($file_resource);
         $prev = $this->get_prev_for_timestamp($file_timestamp);
         $next = $this->get_next_for_timestamp($file_timestamp);
         if ($prev) {
-            $graph->add($file_resource, "hydra:previous", $server . "/parking?page=" . $prev);
+            $link_graph->add($file_resource, "hydra:previous", $server . "/parking?page=" . $prev);
         }
         if ($next) {
-            $graph->add($file_resource, "hydra:next", $server . "/parking?page=" . $next);
+            $link_graph->add($file_resource, "hydra:next", $server . "/parking?page=" . $next);
         }
-        return $graph;
+        array_push($graphs, $link_graph);
+
+        return $graphs;
     }
 
     // Get page closest to requested timestamp

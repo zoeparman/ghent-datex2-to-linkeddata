@@ -8,7 +8,7 @@ if (!$_SERVER['HTTP_ACCEPT']) {
     $_SERVER['HTTP_ACCEPT'] = 'text/turtle';
 }
 
-$graph = null; $filename = null;
+$filename = null;
 
 $fs = new \otn\linkeddatex2\gather\ParkingHistoryFilesystem(__DIR__ . "/out", __DIR__ . "/../../resources");
 
@@ -37,6 +37,6 @@ if (!isset($_GET['page'])) {
     }
     header('Location: http://' . $server . '/parking?page=' . $filename);
 } else {
-    $graph = $fs->get_graph_from_file_with_metadata($filename);
-    \otn\linkeddatex2\View::view($_SERVER['HTTP_ACCEPT'],$graph);
+    $graphs = $fs->get_graphs_from_file_with_metadata($filename);
+    \otn\linkeddatex2\View::view_quads($_SERVER['HTTP_ACCEPT'],$graphs);
 }
