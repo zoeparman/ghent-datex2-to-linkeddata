@@ -17,7 +17,7 @@ Class GhentToRDF
         \EasyRdf_Namespace::set("dct","http://purl.org/dc/terms/");
         \EasyRdf_Namespace::set("geo","http://www.w3.org/2003/01/geo/wgs84_pos#");
 
-        // Map parking ID's to their URI's
+        // Map parking IDs to their URIs
         $parkingURIs = [
             "1bcd7c6f-563b-4c07-803d-a2ad05014c9f" => "https://stad.gent/id/parking/P7",
             "a13c076c-4088-4623-bfcb-41ab45cb8f9f" => "https://stad.gent/id/parking/P10",
