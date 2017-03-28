@@ -20,8 +20,8 @@ class TrigParser
             if (substr($line, 0, 7) === "@prefix") {
                 array_push($prefixes, $lines[$i]);
             }
-            if (substr($line, 0, 1) === ":") {
-                $uri = substr($line, 1, strlen($line)-2);
+            if (substr($line, 0, 1) === "<") {
+                $uri = substr($line, 1, strlen($line)-3);
                 $graph = new \EasyRdf_Graph($uri);
                 $i++; $line = $lines[$i]; $start = $i;
                 while ($line !== "}") {

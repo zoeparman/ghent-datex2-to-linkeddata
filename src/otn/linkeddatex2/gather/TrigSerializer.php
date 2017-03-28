@@ -18,8 +18,8 @@ class TrigSerializer
         $turtle_serializer = new \EasyRdf_Serialiser_Turtle();
         foreach($graphs as $graph) {
             $turtle = $turtle_serializer->serialise($graph, "turtle");
-            $output .= ":" . $graph->getUri();
-            $output .= "{\n";
+            $output .= "<" . $graph->getUri() . ">{";
+            $output .= "\n";
             $output .= $turtle;
             $output .= "}\n\n";
         }

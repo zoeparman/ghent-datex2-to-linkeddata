@@ -69,12 +69,12 @@ class ParkingHistoryFilesystem
         $prev = $this->get_prev_for_timestamp($file_timestamp);
         $next = $this->get_next_for_timestamp($file_timestamp);
         if ($prev) {
-            $prev_resource = $server . "/parking?page=" . $prev;
-            $link_graph->set($file_resource, "hydra:previous", $prev_resource);
+            $prev_resource = new \EasyRdf_Resource("http://" . $server . "/parking?page=" . $prev);
+            $link_graph->add($file_resource, "hydra:previous", $prev_resource);
         }
         if ($next) {
-            $next_resource = $server . "/parking?page=" . $next;
-            $link_graph->set($file_resource, "hydra:next", $next_resource);
+            $next_resource = new \EasyRdf_Resource("http://" . $server . "/parking?page=" . $next);
+            $link_graph->add($file_resource, "hydra:next", $next_resource);
         }
         array_push($graphs, $link_graph);
 
