@@ -15,7 +15,7 @@ class ParkingHistoryFilesystem
     private $trig_parser;
 
     public function __construct($out_dirname, $res_dirname) {
-        date_default_timezone_set("Europe/Brussels"); // TODO is this still necessary?
+        date_default_timezone_set("Europe/Brussels");
         $out_adapter = new Local($out_dirname);
         $this->out_fs = new Filesystem($out_adapter);
         $res_adapter = new Local($res_dirname);
@@ -45,7 +45,7 @@ class ParkingHistoryFilesystem
     }
 
     // Get file contents and add metadata
-    public function get_graphs_from_file_with_metadata($filename) {
+    public function get_graphs_from_file_with_links($filename) {
         // Add static metadata
         \EasyRdf_Namespace::set("hydra","http://www.w3.org/ns/hydra/core#");
         $contents = $this->get_file_contents($filename);
@@ -56,23 +56,25 @@ class ParkingHistoryFilesystem
             $turtle_parser->parse($graph, $this->get_static_data(), "turtle", "");
         }
 
-        // Add links to previous, next
+        // Add links to previous, next in metadata
         // TODO how do we call this graph?
         $server = $_SERVER["SERVER_NAME"];
         if ($_SERVER["SERVER_PORT"] != "80") {
             $server = $server . ":" . $_SERVER["SERVER_PORT"];
         }
-        $link_graph = new \EasyRdf_Graph("Links");
+        $link_graph = new \EasyRdf_Graph("Metadata");
         $file_resource = $server . "/parking?page=" . $filename;
         $file_timestamp = strtotime(substr($filename, 0, $this->basename_length));
         $link_graph->resource($file_resource);
         $prev = $this->get_prev_for_timestamp($file_timestamp);
         $next = $this->get_next_for_timestamp($file_timestamp);
         if ($prev) {
-            $link_graph->add($file_resource, "hydra:previous", $server . "/parking?page=" . $prev);
+            $prev_resource = $server . "/parking?page=" . $prev;
+            $link_graph->set($file_resource, "hydra:previous", $prev_resource);
         }
         if ($next) {
-            $link_graph->add($file_resource, "hydra:next", $server . "/parking?page=" . $next);
+            $next_resource = $server . "/parking?page=" . $next;
+            $link_graph->set($file_resource, "hydra:next", $next_resource);
         }
         array_push($graphs, $link_graph);
 
