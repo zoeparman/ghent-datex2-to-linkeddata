@@ -58,6 +58,7 @@ class ParkingHistoryFilesystem
 
         // Add links to previous, next in metadata
         // TODO how do we call this graph?
+        // TODO avoid this dependency on the URL form
         $server = $_SERVER["SERVER_NAME"];
         if ($_SERVER["SERVER_PORT"] != "80") {
             $server = $server . ":" . $_SERVER["SERVER_PORT"];
@@ -94,7 +95,7 @@ class ParkingHistoryFilesystem
                 $n_diff = $next - $timestamp;
                 $return_ts = $n_diff < $p_diff ? $next : $prev;
             } else {
-                // One or none of both exist. Return theh one that exists, or false if none exist
+                // One or none of both exist. Return the one that exists, or false if none exist
                 $return_ts = $prev ? $prev : $next;
             }
         }
