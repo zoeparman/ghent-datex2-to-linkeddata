@@ -9,7 +9,6 @@ namespace otn\linkeddatex2;
 
 Class GhentToRDF
 {
-    // TODO also save ParkingStatusOriginTime in order to group different sensor events in files
     public static function map($url, &$graph){
         // \EasyRdf_Namespace::set registers a new prefix
         \EasyRdf_Namespace::set("datex","http://vocab.datex.org/terms#");

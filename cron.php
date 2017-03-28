@@ -29,7 +29,6 @@ if ($argc == 1) {
  */
 function acquire_data() {
     $fs = new ParkingHistoryFilesystem(__DIR__ . "/public/parking/out", __DIR__ . "/resources");
-    // TODO use ParkingStatusOriginTime
     $graph = GraphProcessor::construct_graph();
     $fs->write_measurement(time(), $graph);
 }
