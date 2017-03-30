@@ -28,11 +28,11 @@ class Consumer extends stream.Writable {
 
     write(triple) {
         // TODO decide what happens with triple here (is it a prev/next link, is it a recording, ...)
+        // TODO how can we see if the stream is available? HTTP request queue?
         this.triples.push(triple);
     }
 
     logTriples() {
-        console.log("LOGGING");
         console.log(this.triples);
     }
 }
