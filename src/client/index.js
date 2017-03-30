@@ -1,19 +1,44 @@
 var N3 = require('n3');
 var http = require('follow-redirects').http;
-var parser = N3.Parser();
+var stream = require('stream');
 
-// server has an ipv6 address
-http.request({
-    family: 6,
-    port: 3000,
-    path: '/parking',
-}, (res) => {
-    parser.parse(res, consumeTriple)
-}).end();
+class Consumer extends stream.Writable {
+    constructor() {
+        super();
+        this.triples = [];
+        this.defaultRequestParams = {
+            family: 6,
+            port: 3000
+        };
+        this.streamParser = N3.StreamParser();
+    }
 
-triples = [];
+    performRequest(argument) {
+        let path = '/parking';
+        if (argument !== undefined) {
+            path += '?' + argument;
+        }
+        let params = this.defaultRequestParams;
+        params.path = path;
+        http.request(params, (res) => {
+            res.pipe(this.streamParser);
+            this.streamParser.pipe(this);
+        }).end();
+    }
 
-function consumeTriple(error, triple, prefixes) {
-    console.log(triple);
+    write(triple) {
+        // TODO decide what happens with triple here (is it a prev/next link, is it a recording, ...)
+        this.triples.push(triple);
+    }
+
+    logTriples() {
+        console.log("LOGGING");
+        console.log(this.triples);
+    }
 }
 
+let consumer = new Consumer();
+consumer.performRequest();
+setTimeout(function() {
+    consumer.logTriples();
+}, 1000);
