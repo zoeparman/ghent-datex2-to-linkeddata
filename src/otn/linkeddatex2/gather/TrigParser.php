@@ -4,6 +4,7 @@ namespace otn\linkeddatex2\gather;
 
 // TODO this is a very primitive way of working and has many bugs,
 // TODO but it works for us
+// TODO github issue
 
 class TrigParser
 {

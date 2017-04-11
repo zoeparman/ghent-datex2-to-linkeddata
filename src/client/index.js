@@ -1,6 +1,6 @@
-var N3 = require('n3');
-var http = require('follow-redirects').http;
-var stream = require('stream');
+let N3 = require('n3');
+let http = require('follow-redirects').http;
+let stream = require('stream');
 
 class Consumer extends stream.Writable {
     constructor() {
@@ -14,6 +14,7 @@ class Consumer extends stream.Writable {
     }
 
     performRequest(argument) {
+        // TODO use hydra links
         let path = '/parking';
         if (argument !== undefined) {
             path += '?' + argument;
@@ -29,6 +30,7 @@ class Consumer extends stream.Writable {
     write(triple) {
         // TODO decide what happens with triple here (is it a prev/next link, is it a recording, ...)
         // TODO how can we see if the stream is available? HTTP request queue? https://nodejs.org/api/events.html
+        // What if this is slower than HTTP?? -> github issue
         this.triples.push(triple);
     }
 
