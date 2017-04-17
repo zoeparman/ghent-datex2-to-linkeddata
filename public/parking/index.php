@@ -4,7 +4,7 @@ require __DIR__ . '/../../vendor/autoload.php';
 // TODO publish static data with cache header on separate api point (no priority)
 
 // If no preferred content type is specified, prefer turtle
-if (!$_SERVER['HTTP_ACCEPT']) {
+if (!array_key_exists('HTTP_ACCEPT', $_SERVER)) {
     $_SERVER['HTTP_ACCEPT'] = 'text/turtle';
 }
 

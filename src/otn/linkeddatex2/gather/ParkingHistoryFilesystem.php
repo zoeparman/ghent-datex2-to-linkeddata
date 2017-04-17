@@ -109,7 +109,7 @@ class ParkingHistoryFilesystem
     public function get_next_for_timestamp($timestamp) {
         $next_ts = $this->get_next_timestamp_for_timestamp($timestamp);
         if ($next_ts) {
-            return $this->get_filename_for_timestamp($timestamp);
+            return $this->get_filename_for_timestamp($next_ts);
         }
         return false;
     }
