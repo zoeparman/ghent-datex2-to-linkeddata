@@ -9,6 +9,14 @@ namespace otn\linkeddatex2;
 
 Class GhentToRDF
 {
+    const STATIC = 0;
+    const DYNAMIC = 1;
+
+    private static $urls = [
+        self::STATIC => "http://opendataportaalmobiliteitsbedrijf.stad.gent/datex2/v2/parkings/",
+        self::DYNAMIC => "http://opendataportaalmobiliteitsbedrijf.stad.gent/datex2/v2/parkingsstatus"
+    ];
+
     private static function addTriple(&$graph, $subject, $predicate, $object) {
         array_push($graph, [
             'subject' => $subject,
@@ -17,8 +25,9 @@ Class GhentToRDF
         ]);
     }
 
-    public static function get($url){
+    public static function get($type){
         $graph = [];
+        $url = self::$urls[$type];
 
         // Map parking ID's to their URI's
         $parkingURIs = [

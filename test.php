@@ -7,8 +7,7 @@ use \Dotenv\Dotenv;
 
 $urls = array(
     "static_data" => "http://opendataportaalmobiliteitsbedrijf.stad.gent/datex2/v2/parkings/",
-    "dynamic_data" => "http://opendataportaalmobiliteitsbedrijf.stad.gent/datex2/v2/parkingsstatus",
-    "description" => "http://purl.org/dc/terms/description"
+    "dynamic_data" => "http://opendataportaalmobiliteitsbedrijf.stad.gent/datex2/v2/parkingsstatus"
 );
 
 $time = substr(date("c"), 0, 19);
@@ -21,5 +20,5 @@ $base_url = $_ENV["BASE_URL"] . "?time=";
 // (ID, occupancy, availability status, opening status)
 // Slowly changing info (name, description, etc) is saved once and added upon request
 //GhentToRDF::map($urls["dynamic_data"], $graph);
-$graph = GhentToRDF::get($urls["dynamic_data"]);
+$graph = GhentToRDF::get($urls["description"]);
 var_dump($graph);
