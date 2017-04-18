@@ -9,12 +9,16 @@ namespace otn\linkeddatex2;
 
 Class GhentToRDF
 {
-    public static function map($url, &$graph){
-        // \EasyRdf_Namespace::set registers a new prefix
-        \EasyRdf_Namespace::set("datex","http://vocab.datex.org/terms#");
-        \EasyRdf_Namespace::set("schema","http://schema.org/");
-        \EasyRdf_Namespace::set("dct","http://purl.org/dc/terms/");
-        \EasyRdf_Namespace::set("geo","http://www.w3.org/2003/01/geo/wgs84_pos#");
+    private static function addTriple(&$graph, $subject, $predicate, $object) {
+        array_push($graph, [
+            'subject' => $subject,
+            'predicate' => $predicate,
+            'object' => $object
+        ]);
+    }
+
+    public static function get($url){
+        $graph = [];
 
         // Map parking ID's to their URI's
         $parkingURIs = [
@@ -25,11 +29,6 @@ Class GhentToRDF
             "49334d1d-b47a-4f3b-a0af-0fa1bcdc7c8e" => "https://stad.gent/id/parking/P8",
             "83f2b0c2-6e74-4700-a862-3bc9cd6a03f4" => "https://stad.gent/id/parking/P2"
         ];
-
-        // Initialize the graph if necessary. The URI in the argument serves as name.
-        if (!isset($graph)) {
-            $graph = new \EasyRdf_Graph("http://linked.open.gent/parking");
-        }
 
         // mapping to City of Ghent URIs to Linked Geo Data
         $sameAs = [
@@ -43,8 +42,7 @@ Class GhentToRDF
 
         // Add the first triplet for each parking subject: its geodata node.
         foreach ($sameAs as $key => $val) {
-            $gentID = $graph->resource($key);
-            $gentID->add("owl:sameAs",$graph->resource($val));
+            self::addTriple($graph, $key, 'owl:sameAs', $val);
         }
 
         // Send a GET request to the URL in the argument, expecting an XML file in return
@@ -55,29 +53,23 @@ Class GhentToRDF
         //Process Parking Status messages (dynamic)
         if ($xmldoc->payloadPublication->genericPublicationExtension->parkingStatusPublication) {
             foreach ($xmldoc->payloadPublication->genericPublicationExtension->parkingStatusPublication->parkingRecordStatus as $parkingStatus) {
-                
-                $parkingResource = $graph->resource($parkingURIs[(string) $parkingStatus->parkingRecordReference["id"]]);
-                //TODO: should this be reified in a Parking Record Status resource?
-                $parkingResource->set('datex:parkingNumberOfVacantSpaces',$parkingStatus->parkingOccupancy->parkingNumberOfVacantSpaces);
-                //TODO: should this be a resource or a data type property?
-                $parkingResource->set('datex:parkingSiteStatus', $parkingStatus->parkingSiteStatus);
-                $parkingResource->set('datex:parkingSiteOpeningStatus',$parkingStatus->parkingSiteOpeningStatus);
+                $subject = $parkingURIs[(string) $parkingStatus->parkingRecordReference["id"]];
+                self::addTriple($graph, $subject, 'datex:parkingNumberOfVacantSpaces', (string)$parkingStatus->parkingOccupancy->parkingNumberOfVacantSpaces);
+                self::addTriple($graph, $subject, 'datex:parkingSiteStatus', (string)$parkingStatus->parkingSiteStatus);
+                self::addTriple($graph, $subject, 'datex:parkingSiteOpeningStatus', (string)$parkingStatus->parkingSiteOpeningStatus);
             }
         }
 
         //Process Parking data that does not change that often (Name, lat, long, etc. Static)
         if ($xmldoc->payloadPublication->genericPublicationExtension->parkingTablePublication) {
             foreach ($xmldoc->payloadPublication->genericPublicationExtension->parkingTablePublication->parkingTable->parkingRecord->parkingSite as $parking) {
-                //var_dump($parking);
-                $parkingResource = $graph->resource((string)$parkingURIs[(string) $parking["id"]]);
-                $parkingResource->set('rdf:type',$graph->resource('http://vocab.datex.org/terms#UrbanParkingSite'));
-
-                $parkingResource->set('rdfs:label',(string)$parking->parkingName->values[0]->value);
-                $parkingResource->set('dct:description',(string)$parking->parkingDescription->values[0]->value);
-                $parkingResource->set('datex:parkingNumberOfSpaces',$parking->parkingNumberOfSpaces);
-                
+                $subject = (string)$parkingURIs[(string) $parking["id"]];
+                self::addTriple($graph, $subject, 'rdf:type', 'http://vocab.datex.org/terms#UrbanParkingSite');
+                self::addTriple($graph, $subject, 'rdfs:label', (string)$parking->parkingName->values[0]->value);
+                self::addTriple($graph, $subject, 'dct:description', (string)$parking->parkingDescription->values[0]->value);
+                self::addTriple($graph, $subject, 'datex:parkingNumberOfSpaces', (string)$parking->parkingNumberOfSpaces);
             }
         }
-        return $res->getHeaders();
+        return $graph;
     }
 }
