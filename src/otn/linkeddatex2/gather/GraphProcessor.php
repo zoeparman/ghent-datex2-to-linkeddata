@@ -8,28 +8,43 @@ use \Dotenv;
 class GraphProcessor
 {
     public static function construct_graph() {
-        //TODO hardf here
         $time = substr(date("c"), 0, 19);
         $dotenv = new Dotenv\Dotenv(__DIR__ . "/../../../../");
         $dotenv->load();
         $base_url = $_ENV["BASE_URL"] . "?time=";
-        $graph = new \EasyRdf_Graph($base_url . $time); // Initializing here allows PHPStorm to infer methods and properties
-
-        // Map real-time info about parkings in Ghent to the graph
-        // (ID, occupancy, availability status, opening status)
-        // Slowly changing info (name, description, etc) is saved once and added upon request
-
-        //GhentToRDF::map(self::$urls["dynamic_data"], $graph);
         $graph = GhentToRDF::get(GhentToRDF::DYNAMIC);
 
-        // Remove unnecessary information
-        foreach ($graph->resources() as $resource) {
-            $graph->deleteSingleProperty($resource, "datex:parkingSiteStatus");
-            $graph->deleteSingleProperty($resource, "datex:parkingSiteOpeningStatus");
-            $graph->deleteSingleProperty($resource, "owl:sameAs");
+        $graph = self::remove_triples_with($graph, ['predicate'], ['datex:parkingSiteStatus']);
+        $graph = self::remove_triples_with($graph, ['predicate'], ['datex:parkingSiteOpeningStatus']);
+        $graph = self::remove_triples_with($graph, ['predicate'], ['owl:sameAs']);
+
+        foreach ($graph as $triple) {
+            $triple['graph'] = $base_url . $time;
         }
 
         return $graph;
+    }
+
+    /** Remove triples for which every given component has the given respective value
+     * eg:
+     * $components = ['resource', 'predicate'];
+     * $values = ['https://stad.gent/id/parking/P7', 'owl:sameAs']
+     * removes all triples of resource https://stad.gent/id/parking/P7 with predicate owl:sameAs
+    */
+    private static function remove_triples_with($graph, $components, $values) {
+        $result = [];
+        foreach ($graph as $triple) {
+            $remove = true;
+            foreach ($components as $index => $component) {
+                if ($triple[$component] !== $values[$index]) {
+                    $remove = false;
+                }
+            }
+            if (!$remove) {
+                array_push($result, $triple);
+            }
+        }
+        return $result;
     }
 
     public static function get_static_data() {

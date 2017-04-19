@@ -2,7 +2,7 @@
 
 require __DIR__ . '/vendor/autoload.php';
 
-use otn\linkeddatex2\GhentToRDF;
+use otn\linkeddatex2\gather\GraphProcessor;
 use \Dotenv\Dotenv;
 
 $urls = array(
@@ -20,5 +20,5 @@ $base_url = $_ENV["BASE_URL"] . "?time=";
 // (ID, occupancy, availability status, opening status)
 // Slowly changing info (name, description, etc) is saved once and added upon request
 //GhentToRDF::map($urls["dynamic_data"], $graph);
-$graph = GhentToRDF::get($urls["description"]);
+$graph = GraphProcessor::construct_graph();
 var_dump($graph);
