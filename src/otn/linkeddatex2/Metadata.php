@@ -7,6 +7,8 @@
 
 namespace otn\linkeddatex2;
 
+//TODO hardf here
+
 Class Metadata
 {
     public static function addToGraph($graph){

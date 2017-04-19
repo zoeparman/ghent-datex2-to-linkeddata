@@ -7,6 +7,7 @@
 
 namespace otn\linkeddatex2;
 
+//TODO hardf here
 
 use otn\linkeddatex2\gather\TrigSerializer;
 

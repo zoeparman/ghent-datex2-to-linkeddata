@@ -4,6 +4,7 @@ namespace otn\linkeddatex2\gather;
 
 use \League\Flysystem\Adapter\Local;
 use \League\Flysystem\Filesystem;
+use pietercolpaert\hardf\TriGParser;
 
 class ParkingHistoryFilesystem
 {
@@ -44,42 +45,47 @@ class ParkingHistoryFilesystem
         return false;
     }
 
-    // Get file contents and add metadata
     public function get_graphs_from_file_with_links($filename) {
-        // Add static metadata
-        \EasyRdf_Namespace::set("hydra","http://www.w3.org/ns/hydra/core#");
         $contents = $this->get_file_contents($filename);
-        $trig_parser = new TrigParser();
+        $parser = new TriGParser(["format" => "trig"]);
+        $graph = $parser->parse($contents);
+
+        // TODO add static data using hardf here
+        /*$trig_parser = new TrigParser();
         $turtle_parser = new \EasyRdf_Parser_Turtle();
         $graphs = $trig_parser->parse($contents);
         foreach ($graphs as $graph) {
             $turtle_parser->parse($graph, $this->get_static_data(), "turtle", "");
-        }
+        }*/
 
-        // Add links to previous, next in metadata
-        // TODO how do we call this graph?
-        // TODO avoid this dependency on the URL form
         $server = $_SERVER["SERVER_NAME"];
         if ($_SERVER["SERVER_PORT"] != "80") {
             $server = $server . ":" . $_SERVER["SERVER_PORT"];
         }
-        $link_graph = new \EasyRdf_Graph("Metadata");
-        $file_resource = $server . "/parking?page=" . $filename;
+        $file_subject = $server . "/parking?page=" . $filename;
         $file_timestamp = strtotime(substr($filename, 0, $this->basename_length));
-        $link_graph->resource($file_resource);
         $prev = $this->get_prev_for_timestamp($file_timestamp);
         $next = $this->get_next_for_timestamp($file_timestamp);
         if ($prev) {
-            $prev_resource = new \EasyRdf_Resource("http://" . $server . "/parking?page=" . $prev);
-            $link_graph->add($file_resource, "hydra:previous", $prev_resource);
+            $triple = [
+                'subject' => $file_subject,
+                'predicate' => "hydra:previous",
+                'object' => "http://" . $server . "/parking?page=" . $prev,
+                'graph' => 'Metadata'
+            ];
+            array_push($graph, $triple);
         }
         if ($next) {
-            $next_resource = new \EasyRdf_Resource("http://" . $server . "/parking?page=" . $next);
-            $link_graph->add($file_resource, "hydra:next", $next_resource);
+            $triple = [
+                'subject' => $file_subject,
+                'predicate' => "hydra:next",
+                'object' => "http://" . $server . "/parking?page=" . $next,
+                'graph' => 'Metadata'
+            ];
+            array_push($graph, $triple);
         }
-        array_push($graphs, $link_graph);
 
-        return $graphs;
+        return $graph;
     }
 
     // Get page closest to requested timestamp
@@ -128,6 +134,7 @@ class ParkingHistoryFilesystem
         return $this->get_closest_page_for_timestamp(time());
     }
 
+    // TODO hardf here
     // Write a measurement to a page
     public function write_measurement($timestamp, \EasyRdf_Graph $graph) {
         $rounded = $this->round_timestamp($timestamp);
@@ -147,6 +154,7 @@ class ParkingHistoryFilesystem
         $this->out_fs->put($filename, $output);
     }
 
+    // TODO hardf here
     // Refresh the static data
     public function refresh_static_data() {
         $graph = GraphProcessor::get_static_data();
@@ -176,6 +184,7 @@ class ParkingHistoryFilesystem
         return substr(date('c', $this->round_timestamp($timestamp)), 0, $this->basename_length) . ".turtle";
     }
 
+    // TODO hardf here
     // Get the static data content
     private function get_static_data() {
         return $this->res_fs->read("static_data.turtle");

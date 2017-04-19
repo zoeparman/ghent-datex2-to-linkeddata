@@ -1,6 +1,7 @@
 <?php
 require __DIR__ . '/../../vendor/autoload.php';
 
+// TODO hardf here
 // TODO publish static data with cache header on separate api point (no priority)
 
 // If no preferred content type is specified, prefer turtle
