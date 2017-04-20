@@ -139,7 +139,6 @@ class ParkingHistoryFilesystem
         return $this->get_closest_page_for_timestamp(time());
     }
 
-    // TODO hardf here
     // Write a measurement to a page
     public function write_measurement($timestamp, $graph) {
         $rounded = $this->round_timestamp($timestamp);
@@ -150,7 +149,6 @@ class ParkingHistoryFilesystem
 
         $filename = $this->get_filename_for_timestamp($timestamp);
 
-        // TODO parse and add prefixes
         $multigraph = [
             'prefixes' => [],
             'triples' => []

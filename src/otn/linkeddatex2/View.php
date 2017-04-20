@@ -43,6 +43,7 @@ Class View
         header("Access-Control-Allow-Origin: *");
         header("Content-Type: trig");
         $meta = self::get_metadata_graph($graphs);
+        // THIS IS NOW DIFFERENT (get)
         Metadata::addToGraph($meta);
         $serializer = new TrigSerializer();
         echo $serializer->serialize($graphs);
