@@ -77,9 +77,9 @@ Class GhentToRDF
         if ($xmldoc->payloadPublication->genericPublicationExtension->parkingStatusPublication) {
             foreach ($xmldoc->payloadPublication->genericPublicationExtension->parkingStatusPublication->parkingRecordStatus as $parkingStatus) {
                 $subject = $parkingURIs[(string) $parkingStatus->parkingRecordReference["id"]];
-                self::addTriple($graph, $subject, 'datex:parkingNumberOfVacantSpaces', (string)$parkingStatus->parkingOccupancy->parkingNumberOfVacantSpaces);
-                self::addTriple($graph, $subject, 'datex:parkingSiteStatus', (string)$parkingStatus->parkingSiteStatus);
-                self::addTriple($graph, $subject, 'datex:parkingSiteOpeningStatus', (string)$parkingStatus->parkingSiteOpeningStatus);
+                self::addTriple($graph, $subject, 'datex:parkingNumberOfVacantSpaces', '"'.(string)$parkingStatus->parkingOccupancy->parkingNumberOfVacantSpaces.'"');
+                self::addTriple($graph, $subject, 'datex:parkingSiteStatus', '"'.(string)$parkingStatus->parkingSiteStatus.'"');
+                self::addTriple($graph, $subject, 'datex:parkingSiteOpeningStatus', '"'.(string)$parkingStatus->parkingSiteOpeningStatus.'"');
             }
         }
 

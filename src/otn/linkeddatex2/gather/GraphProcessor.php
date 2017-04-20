@@ -18,11 +18,16 @@ class GraphProcessor
         $graph = self::remove_triples_with($graph, ['predicate'], ['datex:parkingSiteOpeningStatus']);
         $graph = self::remove_triples_with($graph, ['predicate'], ['owl:sameAs']);
 
+        $multigraph = [
+            'prefixes' => $graph["prefixes"],
+            'triples' => []
+        ];
         foreach ($graph["triples"] as $triple) {
             $triple['graph'] = $base_url . $time;
+            array_push($multigraph['triples'], $triple);
         }
 
-        return $graph;
+        return $multigraph;
     }
 
     /** Remove triples for which every given component has the given respective value

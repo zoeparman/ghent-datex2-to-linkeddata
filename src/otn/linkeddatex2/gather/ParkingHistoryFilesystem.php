@@ -25,9 +25,6 @@ class ParkingHistoryFilesystem
         $this->basename_length = 19;
         $this->minute_interval = 5;
 
-        $this->trig_parser = new TrigParser();
-        $this->trig_serializer = new TrigSerializer();
-
         if (!$this->res_fs->has("static_data.turtle")) {
             $this->refresh_static_data();
         }
@@ -144,7 +141,7 @@ class ParkingHistoryFilesystem
 
     // TODO hardf here
     // Write a measurement to a page
-    public function write_measurement($timestamp, \EasyRdf_Graph $graph) {
+    public function write_measurement($timestamp, $graph) {
         $rounded = $this->round_timestamp($timestamp);
         // Save the oldest filename to resources to avoid linear searching in filenames
         if (!$this->res_fs->has("oldest_timestamp")) {
@@ -153,13 +150,27 @@ class ParkingHistoryFilesystem
 
         $filename = $this->get_filename_for_timestamp($timestamp);
 
-        $trig_graph = array();
+        // TODO parse and add prefixes
+        $multigraph = [
+            'prefixes' => [],
+            'triples' => []
+        ];
         if ($this->out_fs->has($filename)) {
-            $trig_graph = $this->trig_parser->parse($this->out_fs->read($filename));
+            $trig_parser = new TriGParser(["format" => "trig"]);
+            $multigraph['triples'] = $trig_parser->parse($this->out_fs->read($filename));
         }
-        array_push($trig_graph, $graph);
-        $output = $this->trig_serializer->serialize($trig_graph);
-        $this->out_fs->put($filename, $output);
+        foreach($graph["triples"] as $quad) {
+            array_push($multigraph['triples'], $quad);
+        }
+        foreach($graph['prefixes'] as $prefix => $iri) {
+            if (!in_array($prefix, $multigraph['prefixes'])) {
+                $multigraph['prefixes'][$prefix] = $iri;
+            }
+        }
+        $trig_writer = new TriGWriter();
+        $trig_writer->addPrefixes($multigraph['prefixes']);
+        $trig_writer->addTriples($multigraph['triples']);
+        $this->out_fs->put($filename, $trig_writer->end());
     }
 
     // Refresh the static data
