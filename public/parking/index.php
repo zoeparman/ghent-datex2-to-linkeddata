@@ -4,7 +4,7 @@ require __DIR__ . '/../../vendor/autoload.php';
 // TODO publish static data with cache header on separate api point (no priority)
 
 // If no preferred content type is specified, prefer turtle
-if (!$_SERVER['HTTP_ACCEPT']) {
+if (!array_key_exists('HTTP_ACCEPT', $_SERVER)) {
     $_SERVER['HTTP_ACCEPT'] = 'text/turtle';
 }
 
@@ -38,5 +38,5 @@ if (!isset($_GET['page'])) {
     header('Location: http://' . $server . '/parking?page=' . $filename);
 } else {
     $graphs = $fs->get_graphs_from_file_with_links($filename);
-    \otn\linkeddatex2\View::view_quads($graphs);
+    \otn\linkeddatex2\View::view($_SERVER['HTTP_ACCEPT'], $graphs);
 }

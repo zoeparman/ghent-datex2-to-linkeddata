@@ -7,8 +7,7 @@
 
 namespace otn\linkeddatex2;
 
-
-use otn\linkeddatex2\gather\TrigSerializer;
+use pietercolpaert\hardf\TriGWriter;
 
 Class View
 {
@@ -33,28 +32,11 @@ Class View
 
     public static function view($acceptHeader, $graph){
         $value = self::headers($acceptHeader);
-        echo $graph->serialise($value);
-    }
-
-    // TODO no content negotiation because TriG is now only supported format?
-    public static function view_quads($graphs) {
-        header("Cache-Control: max-age=30");
-        header("Access-Control-Allow-Origin: *");
-        header("Content-Type: trig");
-        $meta = self::get_metadata_graph($graphs);
-        Metadata::addToGraph($meta);
-        $serializer = new TrigSerializer();
-        echo $serializer->serialize($graphs);
-    }
-
-    private static function get_metadata_graph(&$graphs) {
-        foreach($graphs as $graph) {
-            if ($graph->getUri() === "Metadata") {
-                return $graph;
-            }
-        }
-        $metadata = new \EasyRdf_Graph("Metadata");
-        array_push($graphs, $metadata);
-        return $metadata;
+        $writer = new TriGWriter(["format" => $value]);
+        $writer->addPrefixes(GhentToRDF::getPrefixes());
+        $writer->addTriples($graph);
+        $metadata = Metadata::get();
+        $writer->addTriples($metadata);
+        echo $writer->end();
     }
 }

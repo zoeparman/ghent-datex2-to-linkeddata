@@ -4,6 +4,8 @@ namespace otn\linkeddatex2\gather;
 
 use \League\Flysystem\Adapter\Local;
 use \League\Flysystem\Filesystem;
+use pietercolpaert\hardf\TriGParser;
+use pietercolpaert\hardf\TriGWriter;
 
 class ParkingHistoryFilesystem
 {
@@ -11,8 +13,6 @@ class ParkingHistoryFilesystem
     private $res_fs;
     private $basename_length;
     private $minute_interval;
-    private $trig_serializer;
-    private $trig_parser;
 
     public function __construct($out_dirname, $res_dirname) {
         date_default_timezone_set("Europe/Brussels");
@@ -22,9 +22,6 @@ class ParkingHistoryFilesystem
         $this->res_fs = new Filesystem($res_adapter);
         $this->basename_length = 19;
         $this->minute_interval = 5;
-
-        $this->trig_parser = new TrigParser();
-        $this->trig_serializer = new TrigSerializer();
 
         if (!$this->res_fs->has("static_data.turtle")) {
             $this->refresh_static_data();
@@ -44,42 +41,53 @@ class ParkingHistoryFilesystem
         return false;
     }
 
-    // Get file contents and add metadata
     public function get_graphs_from_file_with_links($filename) {
-        // Add static metadata
-        \EasyRdf_Namespace::set("hydra","http://www.w3.org/ns/hydra/core#");
         $contents = $this->get_file_contents($filename);
-        $trig_parser = new TrigParser();
-        $turtle_parser = new \EasyRdf_Parser_Turtle();
-        $graphs = $trig_parser->parse($contents);
+        $trig_parser = new TriGParser(["format" => "trig"]);
+        $turtle_parser = new TriGParser(["format" => "turtle"]);
+        $graphs = [];
+        $multigraph = $trig_parser->parse($contents);
+        $static_data = $turtle_parser->parse($this->get_static_data());
+        foreach ($multigraph as $quad) {
+            if (!in_array($quad['graph'], $graphs)) {
+                array_push($graphs, $quad['graph']);
+            }
+        }
         foreach ($graphs as $graph) {
-            $turtle_parser->parse($graph, $this->get_static_data(), "turtle", "");
+            foreach($static_data as $triple) {
+                $triple['graph'] = $graph;
+                array_push($multigraph, $triple);
+            }
         }
 
-        // Add links to previous, next in metadata
-        // TODO how do we call this graph?
-        // TODO avoid this dependency on the URL form
         $server = $_SERVER["SERVER_NAME"];
         if ($_SERVER["SERVER_PORT"] != "80") {
             $server = $server . ":" . $_SERVER["SERVER_PORT"];
         }
-        $link_graph = new \EasyRdf_Graph("Metadata");
-        $file_resource = $server . "/parking?page=" . $filename;
+        $file_subject = $server . "/parking?page=" . $filename;
         $file_timestamp = strtotime(substr($filename, 0, $this->basename_length));
-        $link_graph->resource($file_resource);
         $prev = $this->get_prev_for_timestamp($file_timestamp);
         $next = $this->get_next_for_timestamp($file_timestamp);
         if ($prev) {
-            $prev_resource = new \EasyRdf_Resource("http://" . $server . "/parking?page=" . $prev);
-            $link_graph->add($file_resource, "hydra:previous", $prev_resource);
+            $triple = [
+                'subject' => $file_subject,
+                'predicate' => "hydra:previous",
+                'object' => "http://" . $server . "/parking?page=" . $prev,
+                'graph' => 'Metadata'
+            ];
+            array_push($multigraph, $triple);
         }
         if ($next) {
-            $next_resource = new \EasyRdf_Resource("http://" . $server . "/parking?page=" . $next);
-            $link_graph->add($file_resource, "hydra:next", $next_resource);
+            $triple = [
+                'subject' => $file_subject,
+                'predicate' => "hydra:next",
+                'object' => "http://" . $server . "/parking?page=" . $next,
+                'graph' => 'Metadata'
+            ];
+            array_push($multigraph, $triple);
         }
-        array_push($graphs, $link_graph);
 
-        return $graphs;
+        return $multigraph;
     }
 
     // Get page closest to requested timestamp
@@ -109,7 +117,7 @@ class ParkingHistoryFilesystem
     public function get_next_for_timestamp($timestamp) {
         $next_ts = $this->get_next_timestamp_for_timestamp($timestamp);
         if ($next_ts) {
-            return $this->get_filename_for_timestamp($timestamp);
+            return $this->get_filename_for_timestamp($next_ts);
         }
         return false;
     }
@@ -129,7 +137,7 @@ class ParkingHistoryFilesystem
     }
 
     // Write a measurement to a page
-    public function write_measurement($timestamp, \EasyRdf_Graph $graph) {
+    public function write_measurement($timestamp, $graph) {
         $rounded = $this->round_timestamp($timestamp);
         // Save the oldest filename to resources to avoid linear searching in filenames
         if (!$this->res_fs->has("oldest_timestamp")) {
@@ -138,19 +146,35 @@ class ParkingHistoryFilesystem
 
         $filename = $this->get_filename_for_timestamp($timestamp);
 
-        $trig_graph = array();
+        $multigraph = [
+            'prefixes' => [],
+            'triples' => []
+        ];
         if ($this->out_fs->has($filename)) {
-            $trig_graph = $this->trig_parser->parse($this->out_fs->read($filename));
+            $trig_parser = new TriGParser(["format" => "trig"]);
+            $multigraph['triples'] = $trig_parser->parse($this->out_fs->read($filename));
         }
-        array_push($trig_graph, $graph);
-        $output = $this->trig_serializer->serialize($trig_graph);
-        $this->out_fs->put($filename, $output);
+        foreach($graph["triples"] as $quad) {
+            array_push($multigraph['triples'], $quad);
+        }
+        foreach($graph['prefixes'] as $prefix => $iri) {
+            if (!in_array($prefix, $multigraph['prefixes'])) {
+                $multigraph['prefixes'][$prefix] = $iri;
+            }
+        }
+        $trig_writer = new TriGWriter();
+        $trig_writer->addPrefixes($multigraph['prefixes']);
+        $trig_writer->addTriples($multigraph['triples']);
+        $this->out_fs->put($filename, $trig_writer->end());
     }
 
     // Refresh the static data
     public function refresh_static_data() {
         $graph = GraphProcessor::get_static_data();
-        $this->res_fs->write("static_data.turtle", $graph->serialise("turtle"));
+        $writer = new TriGWriter();
+        $writer->addPrefixes($graph["prefixes"]);
+        $writer->addTriples($graph["triples"]);
+        $this->res_fs->write("static_data.turtle", $writer->end());
     }
 
     // PRIVATE METHODS
