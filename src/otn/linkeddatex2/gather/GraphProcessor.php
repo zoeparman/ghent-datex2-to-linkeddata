@@ -3,6 +3,7 @@
 namespace otn\linkeddatex2\gather;
 
 use otn\linkeddatex2\GhentToRDF;
+use \Dotenv;
 
 /**
  * Class GraphProcessor
@@ -32,7 +33,9 @@ class GraphProcessor
      */
     public static function construct_graph() {
         $time = substr(date("c"), 0, 19);
-        $base_url = "http://linked.data.gent/parking/?time=";
+        $dotenv = new Dotenv\Dotenv(__DIR__ . "/../../../../");
+        $dotenv->load();
+        $base_url = $_ENV["BASE_URL"] . "?time=";
         $graph = new \EasyRdf_Graph($base_url . $time); // Initializing here allows PHPStorm to infer methods and properties
 
         // Map real-time info about parkings in Ghent to the graph

@@ -18,6 +18,7 @@
         "guzzlehttp/guzzle": "~6.0",
         "willdurand/negotiation": "^2.2",
         "league/flysystem": "^1.0",
-        "peppeocchi/php-cron-scheduler": "^1.4"
+        "peppeocchi/php-cron-scheduler": "^1.4",
+        "vlucas/phpdotenv": "^2.4"
     }
 }
