@@ -7,6 +7,8 @@
 
 namespace otn\linkeddatex2;
 
+// TODO url in config file
+
 Class Metadata
 {
     private static function addTriple(&$graph, $subject, $predicate, $object) {
@@ -18,12 +20,10 @@ Class Metadata
         ]);
     }
 
+    //TODO prefixes
     public static function get() {
-        $result = [
-            'prefixes' => [],
-            'triples' => []
-        ];
-        $result["prefixes"]["hydra"] = "http://www.w3.org/ns/hydra/core#";
+        $result = array();
+        //$result["prefixes"]["hydra"] = "http://www.w3.org/ns/hydra/core#";
         $dataset = "http://linked.open.gent/parking/#dataset";
         $document = "http://linked.open.gent/parking/";
         $search = "http://linked.open.gent/parking/#search";
@@ -32,11 +32,11 @@ Class Metadata
         $mappingO = "http://linked.open.gent/parking/#mapping0";
 
         $doc_triples = [
-            ['void:triples', 200],
+            ['void:triples', '"200"'],
             ['rdfs:label', '"Dynamic parking data in Ghent"'],
             ['rdfs:comment', '"This document is a mapping from the Datex2 by Pieter Colpaert as part of the Open Transport Net project"'],
             ['foaf:homepage', 'https://github.com/opentransportnet/ghent-datex2-to-linkeddata'],
-            ['cc:license'], "https://data.stad.gent/algemene-licentie"];
+            ['cc:license', "https://data.stad.gent/algemene-licentie"]];
 
         foreach ($doc_triples as $triple) {
             self::addTriple($result, $document, $triple[0], $triple[1]);

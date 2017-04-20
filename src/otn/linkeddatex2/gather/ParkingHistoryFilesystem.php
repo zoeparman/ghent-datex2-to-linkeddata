@@ -43,6 +43,7 @@ class ParkingHistoryFilesystem
         return false;
     }
 
+    // TODO add prefixes
     public function get_graphs_from_file_with_links($filename) {
         $contents = $this->get_file_contents($filename);
         $trig_parser = new TriGParser(["format" => "trig"]);
@@ -66,7 +67,6 @@ class ParkingHistoryFilesystem
         if ($_SERVER["SERVER_PORT"] != "80") {
             $server = $server . ":" . $_SERVER["SERVER_PORT"];
         }
-        $server = "localhost";
         $file_subject = $server . "/parking?page=" . $filename;
         $file_timestamp = strtotime(substr($filename, 0, $this->basename_length));
         $prev = $this->get_prev_for_timestamp($file_timestamp);

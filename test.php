@@ -22,4 +22,4 @@ $base_url = $_ENV["BASE_URL"] . "?time=";
 //GhentToRDF::map($urls["dynamic_data"], $graph);
 $fs = new \otn\linkeddatex2\gather\ParkingHistoryFilesystem("public/parking/out", "resources");
 $graph = $fs->get_graphs_from_file_with_links("2017-03-28T12:35:00.turtle");
-var_dump($graph);
+\otn\linkeddatex2\View::view($_SERVER['HTTP_ACCEPT'], $graph);

@@ -9,7 +9,7 @@ namespace otn\linkeddatex2;
 
 //TODO hardf here
 
-use otn\linkeddatex2\gather\TrigSerializer;
+use pietercolpaert\hardf\TriGWriter;
 
 Class View
 {
@@ -34,7 +34,11 @@ Class View
 
     public static function view($acceptHeader, $graph){
         $value = self::headers($acceptHeader);
-        echo $graph->serialise($value);
+        $writer = new TriGWriter(["format" => $value]);
+        $writer->addTriples($graph);
+        $metadata = Metadata::get();
+        $writer->addTriples($metadata);
+        echo $writer->end();
     }
 
     // TODO no content negotiation because TriG is now only supported format?

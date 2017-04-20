@@ -39,5 +39,5 @@ if (!isset($_GET['page'])) {
     header('Location: http://' . $server . '/parking?page=' . $filename);
 } else {
     $graphs = $fs->get_graphs_from_file_with_links($filename);
-    \otn\linkeddatex2\View::view_quads($graphs);
+    \otn\linkeddatex2\View::view($_SERVER['HTTP_ACCEPT'], $graphs);
 }
