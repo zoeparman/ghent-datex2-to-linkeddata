@@ -18,7 +18,7 @@ class GraphProcessor
         $graph = self::remove_triples_with($graph, ['predicate'], ['datex:parkingSiteOpeningStatus']);
         $graph = self::remove_triples_with($graph, ['predicate'], ['owl:sameAs']);
 
-        foreach ($graph as $triple) {
+        foreach ($graph["triples"] as $triple) {
             $triple['graph'] = $base_url . $time;
         }
 
@@ -32,8 +32,11 @@ class GraphProcessor
      * removes all triples of resource https://stad.gent/id/parking/P7 with predicate owl:sameAs
     */
     private static function remove_triples_with($graph, $components, $values) {
-        $result = [];
-        foreach ($graph as $triple) {
+        $result = [
+            "prefixes" => $graph["prefixes"],
+            "triples" => []
+        ];
+        foreach ($graph["triples"] as $triple) {
             $remove = true;
             foreach ($components as $index => $component) {
                 if ($triple[$component] !== $values[$index]) {
@@ -41,7 +44,7 @@ class GraphProcessor
                 }
             }
             if (!$remove) {
-                array_push($result, $triple);
+                array_push($result["triples"], $triple);
             }
         }
         return $result;

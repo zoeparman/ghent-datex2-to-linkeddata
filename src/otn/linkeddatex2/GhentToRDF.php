@@ -18,15 +18,29 @@ Class GhentToRDF
     ];
 
     private static function addTriple(&$graph, $subject, $predicate, $object) {
-        array_push($graph, [
+        array_push($graph["triples"], [
             'subject' => $subject,
             'predicate' => $predicate,
             'object' => $object
         ]);
     }
 
+    private static function addPrefix(&$graph, $prefix, $iri) {
+        $graph["prefixes"][$prefix] = $iri;
+    }
+
     public static function get($type){
-        $graph = [];
+        $graph = [
+            'prefixes' => [],
+            'triples' => []
+        ];
+        self::addPrefix($graph, "datex", "http://vocab.datex.org/terms#");
+        self::addPrefix($graph, "schema","http://schema.org/");
+        self::addPrefix($graph, "dct","http://purl.org/dc/terms/");
+        self::addPrefix($graph, "geo","http://www.w3.org/2003/01/geo/wgs84_pos#");
+        self::addPrefix($graph, "owl","http://www.w3.org/2002/07/owl#");
+        self::addPrefix($graph, "rdfs","http://www.w3.org/2000/01/rdf-schema#");
+
         $url = self::$urls[$type];
 
         // Map parking ID's to their URI's
@@ -74,9 +88,9 @@ Class GhentToRDF
             foreach ($xmldoc->payloadPublication->genericPublicationExtension->parkingTablePublication->parkingTable->parkingRecord->parkingSite as $parking) {
                 $subject = (string)$parkingURIs[(string) $parking["id"]];
                 self::addTriple($graph, $subject, 'rdf:type', 'http://vocab.datex.org/terms#UrbanParkingSite');
-                self::addTriple($graph, $subject, 'rdfs:label', (string)$parking->parkingName->values[0]->value);
-                self::addTriple($graph, $subject, 'dct:description', (string)$parking->parkingDescription->values[0]->value);
-                self::addTriple($graph, $subject, 'datex:parkingNumberOfSpaces', (string)$parking->parkingNumberOfSpaces);
+                self::addTriple($graph, $subject, 'rdfs:label', '"' . (string)$parking->parkingName->values[0]->value . '"');
+                self::addTriple($graph, $subject, 'dct:description', '"' . (string)$parking->parkingDescription->values[0]->value . '"');
+                self::addTriple($graph, $subject, 'datex:parkingNumberOfSpaces', '"' . (string)$parking->parkingNumberOfSpaces . '"');
             }
         }
         return $graph;

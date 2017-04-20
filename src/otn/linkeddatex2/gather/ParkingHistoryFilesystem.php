@@ -5,6 +5,7 @@ namespace otn\linkeddatex2\gather;
 use \League\Flysystem\Adapter\Local;
 use \League\Flysystem\Filesystem;
 use pietercolpaert\hardf\TriGParser;
+use pietercolpaert\hardf\TriGWriter;
 
 class ParkingHistoryFilesystem
 {
@@ -47,21 +48,28 @@ class ParkingHistoryFilesystem
 
     public function get_graphs_from_file_with_links($filename) {
         $contents = $this->get_file_contents($filename);
-        $parser = new TriGParser(["format" => "trig"]);
-        $graph = $parser->parse($contents);
-
-        // TODO add static data using hardf here
-        /*$trig_parser = new TrigParser();
-        $turtle_parser = new \EasyRdf_Parser_Turtle();
-        $graphs = $trig_parser->parse($contents);
+        $trig_parser = new TriGParser(["format" => "trig"]);
+        $turtle_parser = new TriGParser(["format" => "turtle"]);
+        $graphs = [];
+        $multigraph = $trig_parser->parse($contents);
+        $static_data = $turtle_parser->parse($this->get_static_data());
+        foreach ($multigraph as $quad) {
+            if (!in_array($quad['graph'], $graphs)) {
+                array_push($graphs, $quad['graph']);
+            }
+        }
         foreach ($graphs as $graph) {
-            $turtle_parser->parse($graph, $this->get_static_data(), "turtle", "");
-        }*/
+            foreach($static_data as $triple) {
+                $triple['graph'] = $graph;
+                array_push($multigraph, $triple);
+            }
+        }
 
         $server = $_SERVER["SERVER_NAME"];
         if ($_SERVER["SERVER_PORT"] != "80") {
             $server = $server . ":" . $_SERVER["SERVER_PORT"];
         }
+        $server = "localhost";
         $file_subject = $server . "/parking?page=" . $filename;
         $file_timestamp = strtotime(substr($filename, 0, $this->basename_length));
         $prev = $this->get_prev_for_timestamp($file_timestamp);
@@ -73,7 +81,7 @@ class ParkingHistoryFilesystem
                 'object' => "http://" . $server . "/parking?page=" . $prev,
                 'graph' => 'Metadata'
             ];
-            array_push($graph, $triple);
+            array_push($multigraph, $triple);
         }
         if ($next) {
             $triple = [
@@ -82,10 +90,10 @@ class ParkingHistoryFilesystem
                 'object' => "http://" . $server . "/parking?page=" . $next,
                 'graph' => 'Metadata'
             ];
-            array_push($graph, $triple);
+            array_push($multigraph, $triple);
         }
 
-        return $graph;
+        return $multigraph;
     }
 
     // Get page closest to requested timestamp
@@ -154,11 +162,13 @@ class ParkingHistoryFilesystem
         $this->out_fs->put($filename, $output);
     }
 
-    // TODO hardf here
     // Refresh the static data
     public function refresh_static_data() {
         $graph = GraphProcessor::get_static_data();
-        $this->res_fs->write("static_data.turtle", $graph->serialise("turtle"));
+        $writer = new TriGWriter();
+        $writer->addPrefixes($graph["prefixes"]);
+        $writer->addTriples($graph["triples"]);
+        $this->res_fs->write("static_data.turtle", $writer->end());
     }
 
     // PRIVATE METHODS
@@ -184,7 +194,6 @@ class ParkingHistoryFilesystem
         return substr(date('c', $this->round_timestamp($timestamp)), 0, $this->basename_length) . ".turtle";
     }
 
-    // TODO hardf here
     // Get the static data content
     private function get_static_data() {
         return $this->res_fs->read("static_data.turtle");
