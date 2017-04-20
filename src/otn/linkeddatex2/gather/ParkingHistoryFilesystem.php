@@ -13,8 +13,6 @@ class ParkingHistoryFilesystem
     private $res_fs;
     private $basename_length;
     private $minute_interval;
-    private $trig_serializer;
-    private $trig_parser;
 
     public function __construct($out_dirname, $res_dirname) {
         date_default_timezone_set("Europe/Brussels");

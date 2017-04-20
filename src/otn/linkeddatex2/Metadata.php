@@ -7,6 +7,8 @@
 
 namespace otn\linkeddatex2;
 
+use \Dotenv;
+
 // TODO url in config file
 
 Class Metadata
@@ -22,14 +24,18 @@ Class Metadata
 
     //TODO prefixes
     public static function get() {
+        $dotenv = new Dotenv\Dotenv(__DIR__ . "../../../");
+        $dotenv->load();
+        $base_url = $_ENV["BASE_URL"];
+
         $result = array();
         //$result["prefixes"]["hydra"] = "http://www.w3.org/ns/hydra/core#";
-        $dataset = "http://linked.open.gent/parking/#dataset";
-        $document = "http://linked.open.gent/parking/";
-        $search = "http://linked.open.gent/parking/#search";
-        $mappingS = "http://linked.open.gent/parking/#mappingS";
-        $mappingP = "http://linked.open.gent/parking/#mappingP";
-        $mappingO = "http://linked.open.gent/parking/#mapping0";
+        $dataset = $base_url . "#dataset";
+        $document = $base_url;
+        $search = $base_url . "#search";
+        $mappingS = $base_url . "#mappingS";
+        $mappingP = $base_url . "#mappingP";
+        $mappingO = $base_url . "#mapping0";
 
         $doc_triples = [
             ['void:triples', '"200"'],
@@ -48,7 +54,7 @@ Class Metadata
         self::addTriple($result, $mappingS, "hydra:property", '"subject"');
         self::addTriple($result, $mappingP, "hydra:property", '"property"');
         self::addTriple($result, $mappingO, "hydra:property", '"object"');
-        self::addTriple($result, $search, "hydra:template", "http://linked.open.gent/parking/");
+        self::addTriple($result, $search, "hydra:template", $base_url);
         self::addTriple($result, $search, "hydra:mapping", $mappingS);
         self::addTriple($result, $search, "hydra:mapping", $mappingP);
         self::addTriple($result, $search, "hydra:mapping", $mappingO);

@@ -7,8 +7,6 @@
 
 namespace otn\linkeddatex2;
 
-//TODO hardf here
-
 use pietercolpaert\hardf\TriGWriter;
 
 Class View
@@ -39,28 +37,5 @@ Class View
         $metadata = Metadata::get();
         $writer->addTriples($metadata);
         echo $writer->end();
-    }
-
-    // TODO no content negotiation because TriG is now only supported format?
-    public static function view_quads($graphs) {
-        header("Cache-Control: max-age=30");
-        header("Access-Control-Allow-Origin: *");
-        header("Content-Type: trig");
-        $meta = self::get_metadata_graph($graphs);
-        // THIS IS NOW DIFFERENT (get)
-        Metadata::addToGraph($meta);
-        $serializer = new TrigSerializer();
-        echo $serializer->serialize($graphs);
-    }
-
-    private static function get_metadata_graph(&$graphs) {
-        foreach($graphs as $graph) {
-            if ($graph->getUri() === "Metadata") {
-                return $graph;
-            }
-        }
-        $metadata = new \EasyRdf_Graph("Metadata");
-        array_push($graphs, $metadata);
-        return $metadata;
     }
 }
