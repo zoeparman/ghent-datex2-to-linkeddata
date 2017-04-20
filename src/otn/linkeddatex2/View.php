@@ -33,6 +33,7 @@ Class View
     public static function view($acceptHeader, $graph){
         $value = self::headers($acceptHeader);
         $writer = new TriGWriter(["format" => $value]);
+        $writer->addPrefixes(GhentToRDF::getPrefixes());
         $writer->addTriples($graph);
         $metadata = Metadata::get();
         $writer->addTriples($metadata);

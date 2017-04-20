@@ -25,21 +25,23 @@ Class GhentToRDF
         ]);
     }
 
-    private static function addPrefix(&$graph, $prefix, $iri) {
-        $graph["prefixes"][$prefix] = $iri;
+    public static function getPrefixes() {
+        return [
+            "datex" => "http://vocab.datex.org/terms#",
+            "schema" => "http://schema.org/",
+            "dct" => "http://purl.org/dc/terms/",
+            "geo" => "http://www.w3.org/2003/01/geo/wgs84_pos#",
+            "owl" => "http://www.w3.org/2002/07/owl#",
+            "rdfs" => "http://www.w3.org/2000/01/rdf-schema#",
+            "hydra" => "http://www.w3.org/ns/hydra/core#"
+        ];
     }
 
     public static function get($type){
         $graph = [
-            'prefixes' => [],
+            'prefixes' => self::getPrefixes(),
             'triples' => []
         ];
-        self::addPrefix($graph, "datex", "http://vocab.datex.org/terms#");
-        self::addPrefix($graph, "schema","http://schema.org/");
-        self::addPrefix($graph, "dct","http://purl.org/dc/terms/");
-        self::addPrefix($graph, "geo","http://www.w3.org/2003/01/geo/wgs84_pos#");
-        self::addPrefix($graph, "owl","http://www.w3.org/2002/07/owl#");
-        self::addPrefix($graph, "rdfs","http://www.w3.org/2000/01/rdf-schema#");
 
         $url = self::$urls[$type];
 

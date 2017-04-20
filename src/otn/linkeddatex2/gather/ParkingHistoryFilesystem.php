@@ -41,7 +41,6 @@ class ParkingHistoryFilesystem
         return false;
     }
 
-    // TODO add prefixes
     public function get_graphs_from_file_with_links($filename) {
         $contents = $this->get_file_contents($filename);
         $trig_parser = new TriGParser(["format" => "trig"]);

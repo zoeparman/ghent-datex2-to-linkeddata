@@ -9,8 +9,6 @@ namespace otn\linkeddatex2;
 
 use \Dotenv;
 
-// TODO url in config file
-
 Class Metadata
 {
     private static function addTriple(&$graph, $subject, $predicate, $object) {
@@ -22,9 +20,8 @@ Class Metadata
         ]);
     }
 
-    //TODO prefixes
     public static function get() {
-        $dotenv = new Dotenv\Dotenv(__DIR__ . "../../../");
+        $dotenv = new Dotenv\Dotenv(__DIR__ . "/../../../");
         $dotenv->load();
         $base_url = $_ENV["BASE_URL"];
 
