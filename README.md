@@ -17,6 +17,16 @@ If you have a webserver, such as apache, direct your webserver to have the `publ
 
 For development purposes, you can test your code with `php -S localhost:1234 -t public/` and your site will be available at http://localhost:1234/
 
+To gather and deploy data periodically (in turtle files in /public/parking/out), add the following line to your crontab:
+
+```
+* * * * * /bin/php [REPO]/cron.php 1>> /dev/null 2>&1
+```
+
+Replace /bin/php with your PHP interpreter binary if you have it located somewhere else, and replace [REPO]
+with the absolute path to the repository on your system. Note: this will keep gathering data, whether the development
+server is running or not.
+
 ## Classes that can be used
 
 ### otn\linkeddatex2\GhentToRDF

@@ -1,3 +1,10 @@
+src/client/node_modules/*
+
+resources/*
+log/*
+
+*.turtle
+
 .idea
 .idea/*
 test_server.sh

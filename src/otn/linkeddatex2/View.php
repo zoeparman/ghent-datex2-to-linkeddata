@@ -7,10 +7,11 @@
 
 namespace otn\linkeddatex2;
 
+use pietercolpaert\hardf\TriGWriter;
 
 Class View
 {
-    public static function view($acceptHeader, $graph){
+    private static function headers($acceptHeader) {
         // Content negotiation using vendor/willdurand/negotiation
         $negotiator = new \Negotiation\Negotiator();
         $priorities = array('text/turtle','application/rdf+xml');
@@ -26,6 +27,16 @@ Class View
 
         //As we have content negotiation on this document, don’t cache different representations on one URL hash key
         header("Vary: accept");
-        echo $graph->serialise($value);
+        return $value;
+    }
+
+    public static function view($acceptHeader, $graph){
+        $value = self::headers($acceptHeader);
+        $writer = new TriGWriter(["format" => $value]);
+        $writer->addPrefixes(GhentToRDF::getPrefixes());
+        $writer->addTriples($graph);
+        $metadata = Metadata::get();
+        $writer->addTriples($metadata);
+        echo $writer->end();
     }
 }
