@@ -20,7 +20,11 @@ Class Metadata
         ]);
     }
 
-    public static function add_counts_to_multigraph(&$multigraph, $graph_name) {
+    public static function add_counts_to_multigraph(&$multigraph) {
+        $dotenv = new Dotenv\Dotenv(__DIR__ . "/../../../");
+        $dotenv->load();
+        $base_url = $_ENV["BASE_URL"];
+
         $graph_counts = array();
         $triples = 0;
         foreach ($multigraph as $quad) {
@@ -35,7 +39,6 @@ Class Metadata
         }
         foreach ($graph_counts as $graph => $count) {
             array_push($multigraph, [
-                // TODO what is the subject here?
                 'graph' => $graph,
                 'subject' => $graph,
                 'predicate' => 'void:triples',
@@ -44,8 +47,7 @@ Class Metadata
             $triples++;
         }
         array_push($multigraph, [
-            // TODO what is the subject here?
-            'subject' => $graph_name,
+            'subject' => $base_url,
             'predicate' => 'void:triples',
             'object' => $triples + 1
         ]);
