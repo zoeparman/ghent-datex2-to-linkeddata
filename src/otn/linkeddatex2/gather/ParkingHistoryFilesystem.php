@@ -113,25 +113,17 @@ class ParkingHistoryFilesystem
 
         $filename = $this->get_filename_for_timestamp($timestamp);
 
-        $multigraph = [
-            'prefixes' => [],
-            'triples' => []
-        ];
+        $multigraph = array();
         if ($this->out_fs->has($filename)) {
             $trig_parser = new TriGParser(["format" => "trig"]);
-            $multigraph['triples'] = $trig_parser->parse($this->out_fs->read($filename));
+            $multigraph = $trig_parser->parse($this->out_fs->read($filename));
         }
         foreach($graph["triples"] as $quad) {
-            array_push($multigraph['triples'], $quad);
-        }
-        foreach($graph['prefixes'] as $prefix => $iri) {
-            if (!in_array($prefix, $multigraph['prefixes'])) {
-                $multigraph['prefixes'][$prefix] = $iri;
-            }
+            array_push($multigraph, $quad);
         }
         $trig_writer = new TriGWriter();
-        $trig_writer->addPrefixes($multigraph['prefixes']);
-        $trig_writer->addTriples($multigraph['triples']);
+        $trig_writer->addPrefix("datex", "http://vocab.datex.org/terms#");
+        $trig_writer->addTriples($multigraph);
         $this->out_fs->put($filename, $trig_writer->end());
     }
 
