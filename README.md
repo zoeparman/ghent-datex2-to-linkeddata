@@ -24,19 +24,34 @@ To gather and deploy data periodically (in turtle files in /public/parking/out),
 ```
 
 Replace /bin/php with your PHP interpreter binary if you have it located somewhere else, and replace [REPO]
-with the absolute path to the repository on your system. Note: this will keep gathering data, whether the development
-server is running or not.
+with the absolute path to the repository on your system.
+Read/write permissions are necessary in the folder `public/parking/out`.
+Note: this will keep gathering data, whether the development server is running or not.
 
 ## Classes that can be used
 
 ### otn\linkeddatex2\GhentToRDF
 
-Constructor takes a URL to a Datex2 file and optionally an `EasyRDF_Graph`. The data is added to the `$graph` element.
+(old) Constructor takes a URL to a Datex2 file and optionally an `EasyRDF_Graph`. The data is added to the `$graph` element.
+
+TODO
 
 ### otn\linkeddatex2\Metadata
 
-Given an `EasyRDF_Graph` object, generates the metadata and adds it to the graph
+(old) Given an `EasyRDF_Graph` object, generates the metadata and adds it to the graph
+
+TODO
 
 ### otn\linkeddatex2\View
 
-Given an accept header, a metadata EasyRDF object and a data EasyRDF object, will stream a string to HTTP output. Will take care of HTTP response and cache headers as well.
+(old) Given an accept header, a metadata EasyRDF object and a data EasyRDF object, will stream a string to HTTP output. Will take care of HTTP response and cache headers as well.
+
+TODO
+
+### otn\linkeddatex2\gather\GraphProcessor
+
+TODO
+
+### otn\linkeddated2\gather\ParkingHistoryFilesystem
+
+TODO
