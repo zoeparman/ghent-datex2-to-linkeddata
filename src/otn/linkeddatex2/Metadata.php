@@ -26,7 +26,6 @@ Class Metadata
         $base_url = $_ENV["BASE_URL"];
 
         $result = array();
-        //$result["prefixes"]["hydra"] = "http://www.w3.org/ns/hydra/core#";
         $dataset = $base_url . "#dataset";
         $document = $base_url;
         $search = $base_url . "#search";
@@ -40,10 +39,10 @@ Class Metadata
             ['rdfs:comment', '"This document is a mapping from the Datex2 by Pieter Colpaert as part of the Open Transport Net project"'],
             ['foaf:homepage', 'https://github.com/opentransportnet/ghent-datex2-to-linkeddata'],
             ['cc:license', "https://data.stad.gent/algemene-licentie"]];
-
         foreach ($doc_triples as $triple) {
             self::addTriple($result, $document, $triple[0], $triple[1]);
         }
+
         self::addTriple($result, $dataset, "hydra:search", $search);
         self::addTriple($result, $mappingS, "hydra:variable", '"s"');
         self::addTriple($result, $mappingP, "hydra:variable", '"p"');
