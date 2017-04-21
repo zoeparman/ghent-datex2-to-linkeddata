@@ -13,7 +13,7 @@ Class Metadata
 {
     private static function addTriple(&$graph, $subject, $predicate, $object) {
         array_push($graph, [
-            'graph' => 'Metadata',
+            'graph' => '#Metadata',
             'subject' => $subject,
             'predicate' => $predicate,
             'object' => $object

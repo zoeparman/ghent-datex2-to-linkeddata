@@ -6,6 +6,7 @@ use \League\Flysystem\Adapter\Local;
 use \League\Flysystem\Filesystem;
 use pietercolpaert\hardf\TriGParser;
 use pietercolpaert\hardf\TriGWriter;
+use \Dotenv;
 
 class ParkingHistoryFilesystem
 {
@@ -22,6 +23,8 @@ class ParkingHistoryFilesystem
         $this->res_fs = new Filesystem($res_adapter);
         $this->basename_length = 19;
         $this->minute_interval = 5;
+        $dotenv = new Dotenv\Dotenv(__DIR__ . "/../../../../");
+        $dotenv->load();
 
         if (!$this->res_fs->has("static_data.turtle")) {
             $this->refresh_static_data();
@@ -45,26 +48,15 @@ class ParkingHistoryFilesystem
         $contents = $this->get_file_contents($filename);
         $trig_parser = new TriGParser(["format" => "trig"]);
         $turtle_parser = new TriGParser(["format" => "turtle"]);
-        $graphs = [];
         $multigraph = $trig_parser->parse($contents);
         $static_data = $turtle_parser->parse($this->get_static_data());
-        foreach ($multigraph as $quad) {
-            if (!in_array($quad['graph'], $graphs)) {
-                array_push($graphs, $quad['graph']);
-            }
-        }
-        foreach ($graphs as $graph) {
-            foreach($static_data as $triple) {
-                $triple['graph'] = $graph;
-                array_push($multigraph, $triple);
-            }
+        // Add static data in default graph
+        foreach($static_data as $triple) {
+            array_push($multigraph, $triple);
         }
 
-        $server = $_SERVER["SERVER_NAME"];
-        if ($_SERVER["SERVER_PORT"] != "80") {
-            $server = $server . ":" . $_SERVER["SERVER_PORT"];
-        }
-        $file_subject = $server . "/parking?page=" . $filename;
+        $server = $_ENV["BASE_URL"];
+        $file_subject = $server . "?page=" . $filename;
         $file_timestamp = strtotime(substr($filename, 0, $this->basename_length));
         $prev = $this->get_prev_for_timestamp($file_timestamp);
         $next = $this->get_next_for_timestamp($file_timestamp);
@@ -72,8 +64,8 @@ class ParkingHistoryFilesystem
             $triple = [
                 'subject' => $file_subject,
                 'predicate' => "hydra:previous",
-                'object' => "http://" . $server . "/parking?page=" . $prev,
-                'graph' => 'Metadata'
+                'object' => "https://" . $server . "?page=" . $prev,
+                'graph' => '#Metadata'
             ];
             array_push($multigraph, $triple);
         }
@@ -81,8 +73,8 @@ class ParkingHistoryFilesystem
             $triple = [
                 'subject' => $file_subject,
                 'predicate' => "hydra:next",
-                'object' => "http://" . $server . "/parking?page=" . $next,
-                'graph' => 'Metadata'
+                'object' => "https://" . $server . "?page=" . $next,
+                'graph' => '#Metadata'
             ];
             array_push($multigraph, $triple);
         }
@@ -197,7 +189,7 @@ class ParkingHistoryFilesystem
 
     // Get appropriate filename for given timestamp
     private function get_filename_for_timestamp($timestamp) {
-        return substr(date('c', $this->round_timestamp($timestamp)), 0, $this->basename_length) . ".turtle";
+        return substr(date('c', $this->round_timestamp($timestamp)), 0, $this->basename_length);
     }
 
     // Get the static data content

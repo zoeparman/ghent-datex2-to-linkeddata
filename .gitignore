@@ -3,7 +3,7 @@ src/client/node_modules/*
 resources/*
 log/*
 
-*.turtle
+public/parking/out/*
 
 .idea
 .idea/*
