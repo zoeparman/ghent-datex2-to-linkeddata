@@ -7,53 +7,86 @@
 
 namespace otn\linkeddatex2;
 
+use \Dotenv;
+
 Class Metadata
 {
-    public static function addToGraph($graph){
-        // Hydra is a template for the Triple Pattern Fragments specification
-        // (https://www.hydra-cg.com/spec/latest/triple-pattern-fragments/),
-        // which will allow you to use this document as a queryable resource in the Linked Data Fragments client
-        // (http://client.linkeddatafragments.org/)
-        \EasyRdf_Namespace::set("hydra","http://www.w3.org/ns/hydra/core#");
+    private static function addTriple(&$graph, $subject, $predicate, $object) {
+        array_push($graph, [
+            'graph' => '#Metadata',
+            'subject' => $subject,
+            'predicate' => $predicate,
+            'object' => $object
+        ]);
+    }
 
-        // Define a resource for the dataset
-        $dataset = $graph->resource("http://linked.open.gent/parking/#dataset");
+    public static function add_counts_to_multigraph(&$multigraph) {
+        $dotenv = new Dotenv\Dotenv(__DIR__ . "/../../../");
+        $dotenv->load();
+        $base_url = $_ENV["BASE_URL"];
 
-        // Define a resource for the document
-        $document = $graph->resource("http://linked.open.gent/parking/");
+        $graph_counts = array();
+        $triples = 0;
+        foreach ($multigraph as $quad) {
+            if ($quad['graph'] !== "") {
+                if (!isset($graph_counts[$quad['graph']])) {
+                    $graph_counts[$quad['graph']] = 1;
+                } else {
+                    $graph_counts[$quad['graph']]++;
+                }
+            }
+            $triples++;
+        }
+        foreach ($graph_counts as $graph => $count) {
+            array_push($multigraph, [
+                'graph' => $graph,
+                'subject' => $graph,
+                'predicate' => 'void:triples',
+                'object' => $graph_counts[$graph] + 1
+            ]);
+            $triples++;
+        }
+        array_push($multigraph, [
+            'subject' => $base_url,
+            'predicate' => 'void:triples',
+            'object' => $triples + 1
+        ]);
+    }
 
-        // Amount of triples is 200?? (set vs. add: set overwrites the property)
-        $document->set('void:triples', "200");
+    public static function get() {
+        $dotenv = new Dotenv\Dotenv(__DIR__ . "/../../../");
+        $dotenv->load();
+        $base_url = $_ENV["BASE_URL"];
 
-        // Define a resource for the search operation and link it: dataset-hydra:search-search
-        $search = $graph->resource("http://linked.open.gent/parking/#search");
-        $dataset->add("hydra:search",$search);
+        $result = array();
+        $dataset = $base_url . "#dataset";
+        $document = $base_url;
+        $search = $base_url . "#search";
+        $mappingS = $base_url . "#mappingS";
+        $mappingP = $base_url . "#mappingP";
+        $mappingO = $base_url . "#mapping0";
 
-        // RDF link: search-hydra:template-literal document url (??)
-        $search->set("hydra:template", "http://linked.open.gent/parking/");
+        $doc_triples = [
+            ['rdfs:label', '"Dynamic parking data in Ghent"'],
+            ['rdfs:comment', '"This document is a mapping from the Datex2 by Pieter Colpaert as part of the Open Transport Net project"'],
+            ['foaf:homepage', 'https://github.com/opentransportnet/ghent-datex2-to-linkeddata'],
+            ['cc:license', "https://data.stad.gent/algemene-licentie"]];
+        foreach ($doc_triples as $triple) {
+            self::addTriple($result, $document, $triple[0], $triple[1]);
+        }
 
-        // Define S-P-O mappings using hydra
-        $mappingS = $graph->resource("http://linked.open.gent/parking/#mappingS");
-        $mappingS->set("hydra:variable","s");
-        $mappingS->add("hydra:property",$graph->resource("rdf:subject"));
+        self::addTriple($result, $dataset, "hydra:search", $search);
+        self::addTriple($result, $mappingS, "hydra:variable", '"s"');
+        self::addTriple($result, $mappingP, "hydra:variable", '"p"');
+        self::addTriple($result, $mappingO, "hydra:variable", '"o"');
+        self::addTriple($result, $mappingS, "hydra:property", '"subject"');
+        self::addTriple($result, $mappingP, "hydra:property", '"property"');
+        self::addTriple($result, $mappingO, "hydra:property", '"object"');
+        self::addTriple($result, $search, "hydra:template", $base_url);
+        self::addTriple($result, $search, "hydra:mapping", $mappingS);
+        self::addTriple($result, $search, "hydra:mapping", $mappingP);
+        self::addTriple($result, $search, "hydra:mapping", $mappingO);
 
-        $mappingP = $graph->resource("http://linked.open.gent/parking/#mappingP");
-        $mappingP->set("hydra:variable","p");
-        $mappingP->add("hydra:property",$graph->resource("rdf:predicate"));
-
-        $mappingO = $graph->resource("http://linked.open.gent/parking/#mappingO");
-        $mappingO->set("hydra:variable","o");
-        $mappingO->add("hydra:property",$graph->resource("rdf:object"));
-
-        $search->add("hydra:mapping",$mappingS);
-        $search->add("hydra:mapping",$mappingP);
-        $search->add("hydra:mapping",$mappingO);
-
-        //add a license for legal interoperability
-        $document = $graph->resource("http://linked.open.gent/parking");
-        $document->set("rdfs:label", "Dynamic parking data in Ghent");
-        $document->set("rdfs:comment", "This document is a mapping from the Datex2 by Pieter Colpaert as part of the Open Transport Net project");
-        $document->add("foaf:homepage", $graph->resource("https://github.com/opentransportnet/ghent-datex2-to-linkeddata"));
-        $document->add("cc:license",$graph->resource("https://data.stad.gent/algemene-licentie"));
+        return $result;
     }
 }
