@@ -60,7 +60,7 @@ Static function `get()` returns all metadata triples in a `hardf` graph (graph i
 
 ### otn\linkeddatex2\View
 
-Given an accept header and a `hardf` graph, 
+Given an accept header, a `hardf` graph, and a url (the url of the current graph)
 the `view` method will stream a string to HTTP output. Will take care of HTTP response and cache headers as well.
 
 ### otn\linkeddatex2\gather\GraphProcessor

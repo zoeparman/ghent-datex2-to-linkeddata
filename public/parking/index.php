@@ -30,14 +30,14 @@ if (!isset($_GET['page']) && !isset($_GET['time'])) {
     }
 }
 
+$server = $_SERVER["SERVER_NAME"];
+if ($_SERVER["SERVER_PORT"] != "80") {
+    $server = $server . ":" . $_SERVER["SERVER_PORT"];
+}
 if (!isset($_GET['page'])) {
-    $server = $_SERVER["SERVER_NAME"];
-    if ($_SERVER["SERVER_PORT"] != "80") {
-        $server = $server . ":" . $_SERVER["SERVER_PORT"];
-    }
     header("Access-Control-Allow-Origin: *");
     header('Location: http://' . $server . '/parking?page=' . $filename);
 } else {
     $graphs = $fs->get_graphs_from_file_with_links($filename);
-    \otn\linkeddatex2\View::view($_SERVER['HTTP_ACCEPT'], $graphs);
+    \otn\linkeddatex2\View::view($_SERVER['HTTP_ACCEPT'], $graphs, 'http://' . $server . '/parking?page=' . $filename);
 }

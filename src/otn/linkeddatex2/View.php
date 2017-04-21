@@ -30,13 +30,16 @@ Class View
         return $value;
     }
 
-    public static function view($acceptHeader, $graph){
+    public static function view($acceptHeader, $graph, $filename){
         $value = self::headers($acceptHeader);
         $writer = new TriGWriter(["format" => $value]);
+        $metadata = Metadata::get();
+        foreach ($metadata as $quad) {
+            array_push($graph, $quad);
+        }
+        Metadata::add_counts_to_multigraph($graph, $filename);
         $writer->addPrefixes(GhentToRDF::getPrefixes());
         $writer->addTriples($graph);
-        $metadata = Metadata::get();
-        $writer->addTriples($metadata);
         echo $writer->end();
     }
 }

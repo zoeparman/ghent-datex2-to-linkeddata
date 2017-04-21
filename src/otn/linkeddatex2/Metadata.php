@@ -20,6 +20,37 @@ Class Metadata
         ]);
     }
 
+    public static function add_counts_to_multigraph(&$multigraph, $graph_name) {
+        $graph_counts = array();
+        $triples = 0;
+        foreach ($multigraph as $quad) {
+            if ($quad['graph'] !== "") {
+                if (!isset($graph_counts[$quad['graph']])) {
+                    $graph_counts[$quad['graph']] = 1;
+                } else {
+                    $graph_counts[$quad['graph']]++;
+                }
+            }
+            $triples++;
+        }
+        foreach ($graph_counts as $graph => $count) {
+            array_push($multigraph, [
+                // TODO what is the subject here?
+                'graph' => $graph,
+                'subject' => $graph,
+                'predicate' => 'void:triples',
+                'object' => $graph_counts[$graph] + 1
+            ]);
+            $triples++;
+        }
+        array_push($multigraph, [
+            // TODO what is the subject here?
+            'subject' => $graph_name,
+            'predicate' => 'void:triples',
+            'object' => $triples + 1
+        ]);
+    }
+
     public static function get() {
         $dotenv = new Dotenv\Dotenv(__DIR__ . "/../../../");
         $dotenv->load();
@@ -34,7 +65,6 @@ Class Metadata
         $mappingO = $base_url . "#mapping0";
 
         $doc_triples = [
-            ['void:triples', '"200"'],
             ['rdfs:label', '"Dynamic parking data in Ghent"'],
             ['rdfs:comment', '"This document is a mapping from the Datex2 by Pieter Colpaert as part of the Open Transport Net project"'],
             ['foaf:homepage', 'https://github.com/opentransportnet/ghent-datex2-to-linkeddata'],
